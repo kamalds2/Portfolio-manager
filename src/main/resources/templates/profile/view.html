@@ -1,0 +1,18 @@
+<div th:fragment="content">
+    <div class="page-header">
+        <h2 th:text="'Profile Overview: ' + ${activeProfile.fullName}">Profile Overview</h2>
+        <p th:text="${activeProfile.title} ?: 'No title provided'"></p>
+        <p>Email: <span th:text="${activeProfile.email}"></span></p>
+        <p>Status:
+            <span th:if="${activeProfile.active}" class="status-badge active">Active</span>
+            <span th:unless="${activeProfile.active}" class="status-badge inactive">Inactive</span>
+        </p>
+        <div class="profile-actions">
+            <a th:href="@{'/admin/skills/' + ${activeProfile.id}}" class="btn-secondary">Skills</a>
+            <a th:href="@{'/admin/projects/' + ${activeProfile.id}}" class="btn-secondary">Projects</a>
+            <a th:href="@{'/admin/education/' + ${activeProfile.id}}" class="btn-secondary">Education</a>
+            <a th:href="@{'/admin/jobs/' + ${activeProfile.id}}" class="btn-secondary">Jobs</a>
+            <a th:href="@{'/admin/about/' + ${activeProfile.id}}" class="btn-secondary">About</a>
+        </div>
+    </div>
+</div>

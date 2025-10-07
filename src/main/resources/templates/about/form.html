@@ -1,0 +1,30 @@
+<div th:fragment="content">
+    <div class="page-header">
+        <h2>
+            <span th:text="${about.id != null ? 'Edit About Section' : 'Add About Section'}">About Form</span>
+            for <strong th:text="${activeProfile.fullName}">Profile Name</strong>
+            (<span th:text="${activeProfile.title}">Role</span>)
+        </h2>
+        <a th:href="@{'/admin/about/' + ${about.profile.id}}" class="btn btn-secondary">Back to About</a>
+    </div>
+
+    <form th:action="@{/admin/about/save}" method="post" th:object="${about}" class="profile-form">
+        <input type="hidden" th:field="*{profile.id}" />
+
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label for="content">About Content *</label>
+                <textarea id="content" th:field="*{content}" rows="10"
+                          placeholder="Write something about this profile..." required></textarea>
+                <small class="form-help">This section appears at the top of the public portfolio</small>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <span th:text="${about.id != null ? 'Update About' : 'Save About'}">Save</span>
+            </button>
+            <a th:href="@{'/admin/about/' + ${about.profile.id}}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

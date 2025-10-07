@@ -1,0 +1,40 @@
+<div th:fragment="content">
+    <div class="page-header">
+        <h2 th:text="${skill.id != null ? 'Edit Skill' : 'Add New Skill'}">Skill Form</h2>
+        <a th:href="@{'/admin/skills/' + ${skill.profile.id}}" class="btn btn-secondary">Back to Skills</a>
+    </div>
+
+    <form th:action="@{/admin/skills/add}" method="post" th:object="${skill}" class="profile-form">
+        <input type="hidden" th:field="*{profile.id}" />
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="name">Skill Name *</label>
+                <input type="text" id="name" th:field="*{name}" placeholder="e.g. Java, Vue.js" required />
+            </div>
+
+            <div class="form-group">
+                <label for="level">Skill Level *</label>
+                <select id="level" th:field="*{level}" required>
+                    <option th:value="BEGINNER">Beginner</option>
+                    <option th:value="INTERMEDIATE">Intermediate</option>
+                    <option th:value="EXPERT">Expert</option>
+                </select>
+                <small class="form-help">Choose the proficiency level for this skill</small>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="description">Skill Description</label>
+                <textarea id="description" th:field="*{description}" rows="4"
+                          placeholder="Optional: Add a short description"></textarea>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <span th:text="${skill.id != null ? 'Update Skill' : 'Add Skill'}">Save</span>
+            </button>
+            <a th:href="@{'/admin/skills/' + ${skill.profile.id}}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

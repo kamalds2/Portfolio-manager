@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Portal</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}" />
+    <script th:src="@{/js/admin.js}" defer></script>
+</head>
+<body>
+    <header>
+    <h1>Managefolio Admin</h1>
+    <nav>
+        <ul class="nav-row">
+            <li><a th:href="@{/admin/dashboard}">Dashboard</a></li>
+            <li><a th:href="@{/admin/profile}">Profiles</a></li>
+
+            <!-- 🔄 Dynamic profile context -->
+            <li th:if="${activeProfile != null}">
+                <span class="nav-profile">Profile: <strong th:text="${activeProfile.fullName}"></strong> (<span th:text="${activeProfile.title}"></span>)</span>
+            </li>
+            <li th:if="${activeProfile != null}"><a th:href="@{'/admin/skills/' + ${activeProfile.id}}">Skills</a></li>
+            <li th:if="${activeProfile != null}"><a th:href="@{'/admin/projects?profile=' + ${activeProfile.id}}">Projects</a></li>
+            <li th:if="${activeProfile != null}"><a th:href="@{'/admin/education/' + ${activeProfile.id}}">Education</a></li>
+            <li th:if="${activeProfile != null}"><a th:href="@{'/admin/jobs/' + ${activeProfile.id}}">Jobs</a></li>
+            <li th:if="${activeProfile != null}"><a th:href="@{'/admin/about/' + ${activeProfile.id}}">About</a></li>
+            <li th:if="${activeProfile != null}"><a th:href="@{/admin/profile}">Back to Profiles</a></li>
+
+            <!-- Admin-only -->
+            <li th:if="${isAdmin}"><a th:href="@{/admin/users}">User Management</a></li>
+
+            <!-- Logout -->
+            <li>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="btn-link">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+ <main>
+    <div th:insert="~{${viewName}}"></div>
+</main>
+    <footer>
+        <p>&copy; 2025 Managefolio Admin Panel</p>
+    </footer>
+</body>
+</html>
