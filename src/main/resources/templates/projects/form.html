@@ -1,6 +1,10 @@
 <div th:fragment="content">
     <div class="page-header">
-        <h2 th:text="${project.id != null ? 'Edit Project' : 'Add New Project'}">Project Form</h2>
+        <h2>
+            <span th:text="${project.id != null ? 'Edit Project' : 'Add New Project'}">Project Form</span>
+            for <strong th:text="${activeProfile.fullName}">Profile Name</strong>
+            (<span th:text="${activeProfile.title}">Role</span>)
+        </h2>
         <a th:href="@{'/admin/projects/' + ${project.profile.id}}" class="btn btn-secondary">Back to Projects</a>
     </div>
 

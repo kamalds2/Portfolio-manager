@@ -4,46 +4,73 @@
 <div th:fragment="content">
 
     <!-- Admin View -->
-    <div th:if="${isAdmin}">
-        <h2>Welcome to the Admin Dashboard</h2>
+    <div th:if="${isAdmin}" class="dashboard admin-view">
+        <h2 class="dashboard-title">Welcome to the Admin Dashboard</h2>
 
-        <h3>All Profiles</h3>
-        <p><strong>Active Profiles:</strong> <span th:text="${activeProfileCount}">0</span></p>
+        <section class="profile-summary">
+            <h3>All Profiles</h3>
+            <p><strong>Active Profiles:</strong> <span th:text="${activeProfileCount}">0</span></p>
 
-        <table>
-            <thead>
-                <tr><th>ID</th><th>Name</th><th>Email</th><th>Status</th></tr>
-            </thead>
-            <tbody>
-                <tr th:each="profile : ${profiles}">
-                    <td th:text="${profile.id}">1</td>
-                    <td th:text="${profile.fullName}">Name</td>
-                    <td th:text="${profile.email}">Email</td>
-                    <td th:text="${profile.active ? 'Active' : 'Inactive'}">Status</td>
-                </tr>
-            </tbody>
-        </table>
+            <table class="profile-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="profile : ${profiles}">
+                        <td th:text="${profile.id}">1</td>
+                        <td th:text="${profile.fullName}">Name</td>
+                        <td th:text="${profile.email}">Email</td>
+                        <td th:text="${profile.active ? 'Active' : 'Inactive'}">Status</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
     </div>
 
     <!-- User View -->
-    <div th:unless="${isAdmin}">
-        <h2>Welcome, <span th:text="${user.username}">User</span></h2>
+    <div th:unless="${isAdmin}" class="dashboard user-view">
+        <h2 class="dashboard-title">Welcome, <span th:text="${user.username}">User</span></h2>
 
-        <div class="profile-section">
-            <img th:if="${profileImageUrl != null}" th:src="@{${profileImageUrl}}" alt="Profile Image"
-                 style="width:120px; border-radius:50%;" />
-            <img th:unless="${profileImageUrl != null}" src="/images/default-profile.png" alt="Default Profile"
-                 style="width:120px; border-radius:50%;" />
-
-            <p><strong>Name:</strong> <span th:text="${userFullName}">Name</span></p>
-            <p><strong>Email:</strong> <span th:text="${userEmail}">Email</span></p>
-            <p><strong>Status:</strong> <span th:text="${userStatus}">Status</span></p>
+        <!-- No Profile Yet -->
+        <div th:if="${noProfile}" class="no-profile">
+            <p>You haven't created a profile yet.</p>
+            <a th:href="@{/admin/profile/new}" class="btn btn-primary">Create Profile</a>
         </div>
 
-        <div class="stats-section">
-            <h3>Your Activity</h3>
-            <p><strong>Active Projects:</strong> <span th:text="${activeProjectsCount}">0</span></p>
-            <p><strong>Active Job:</strong> <span th:text="${activeJobName}">No active job</span></p>
+        <!-- Profile Exists -->
+        <div th:unless="${noProfile}" class="profile-details">
+           <section class="profile-header">
+    <div class="profile-image">
+        <img th:if="${profileImageUrl != null}" th:src="@{${profileImageUrl}}" alt="Profile Image" />
+        <img th:unless="${profileImageUrl != null}" src="/images/default-profile.png" alt="Default Profile" />
+    </div>
+    <div class="profile-info">
+        <p><strong>Name:</strong> <span th:text="${userFullName}">Name</span></p>
+        <p><strong>Email:</strong> <span th:text="${userEmail}">Email</span></p>
+        <p><strong>Status:</strong> <span th:text="${userStatus}">Status</span></p>
+        <div class="edit-profile">
+            <a th:href="@{'/admin/profile/edit/' + ${activeProfile.id}}" class="btn btn-secondary">Edit Profile</a>
+        </div>
+    </div>
+</section>
+
+           <section class="profile-stats">
+    <h3>Your Activity</h3>
+    <ul class="stats-list">
+        <li><strong>Active Projects:</strong> <span th:text="${#lists.size(projects)}">0</span></li>
+        <li><strong>Skills:</strong> <span th:text="${#lists.size(skills)}">0</span></li>
+        <li><strong>Education Entries:</strong> <span th:text="${#lists.size(educationList)}">0</span></li>
+        <li><strong>Job Experiences:</strong> <span th:text="${#lists.size(jobs)}">0</span></li>
+        <li><strong>About Sections:</strong> <span th:text="${#lists.size(about)}">0</span></li>
+    </ul>
+</section>
+
+            
         </div>
     </div>
 

@@ -6,6 +6,8 @@ import Managefolio.admin.repository.AboutRepository;
 import Managefolio.admin.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -33,16 +35,18 @@ public class AboutController {
 
     // 🌐 View or edit About section for a profile
     @GetMapping("/{profileId}")
-    public String viewOrEditAbout(@PathVariable Long profileId, Model model) {
+    public String viewOrEditAbout(@PathVariable Long profileId, Model model, Authentication authentication) {
         Profile profile = profileRepository.findById(profileId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid profile ID: " + profileId));
 
         About about = aboutRepository.findByProfileId(profileId)
             .orElse(About.builder().profile(profile).build());
 
+        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin); // ✅ Dynamic role check
+
         model.addAttribute("about", about);
-        model.addAttribute("activeProfile", profile); // ✅ Enables dynamic header
-        model.addAttribute("isAdmin", true);
+        model.addAttribute("activeProfile", profile);
         model.addAttribute("viewName", "about/form");
         return "layout/base";
     }

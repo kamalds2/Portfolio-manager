@@ -1,6 +1,7 @@
 package Managefolio.admin.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import java.util.*;
 
@@ -21,8 +22,12 @@ public class User {
     @Column(unique = true, nullable = false)
     private String username;
 
+    
+    @NotBlank
+    @Size(min = 6)
     @Column(nullable = false)
     private String password;
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

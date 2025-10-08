@@ -6,74 +6,88 @@ import Managefolio.admin.repository.SkillRepository;
 import Managefolio.admin.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+
 @Controller
 @RequestMapping("/admin/skills")
-@PreAuthorize("hasRole('ADMIN')")
 public class SkillController {
 
-    @Autowired
-    private SkillRepository skillRepository;
+    @Autowired private SkillRepository skillRepository;
+    @Autowired private ProfileRepository profileRepository;
 
-    @Autowired
-    private ProfileRepository profileRepository;
-
-    // 🌐 Admin View: List Skills for a Profile
-    @GetMapping("/{profileId}")
-    public String listSkills(@PathVariable Long profileId, Model model) {
-        Profile profile = profileRepository.findById(profileId)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid profile ID: " + profileId));
-        model.addAttribute("skills", skillRepository.findByProfileId(profileId));
-        model.addAttribute("activeProfile", profile); // ✅ Enables dynamic header
-        model.addAttribute("viewName", "skill/list");
-        model.addAttribute("isAdmin", true);
-        return "layout/base";
+    @GetMapping
+    public String redirectToFirstProfile() {
+        Long firstId = profileRepository.findAll().stream()
+            .findFirst()
+            .map(Profile::getId)
+            .orElseThrow(() -> new IllegalStateException("No profiles available"));
+        return "redirect:/admin/skills/" + firstId;
     }
 
-    // 🌐 Admin View: Show Form to Create Skill
+	    @GetMapping("/{profileId}")
+	    public String listSkills(@PathVariable Long profileId, Model model, Authentication authentication) {
+	        Profile profile = profileRepository.findById(profileId)
+	            .orElseThrow(() -> new IllegalArgumentException("Invalid profile ID: " + profileId));
+	
+	        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+	        model.addAttribute("isAdmin", isAdmin);
+	
+	        model.addAttribute("skills", skillRepository.findByProfileId(profileId));
+	        model.addAttribute("activeProfile", profile);
+	        model.addAttribute("viewName", "skill/list");
+	        return "layout/base";
+	    }
+
     @GetMapping("/new/{profileId}")
-    public String createSkillForm(@PathVariable Long profileId, Model model) {
+    public String createSkillForm(@PathVariable Long profileId, Model model, Authentication authentication) {
         Profile profile = profileRepository.findById(profileId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid profile ID: " + profileId));
+
+        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
+
         Skill skill = new Skill();
         skill.setProfile(profile);
+
         model.addAttribute("skill", skill);
         model.addAttribute("activeProfile", profile);
         model.addAttribute("viewName", "skill/form");
-        model.addAttribute("isAdmin", true);
         return "layout/base";
     }
 
-    // 📝 Admin View: Save Skill (Create or Update)
     @PostMapping("/add")
     public String saveSkill(@ModelAttribute Skill skill) {
         skillRepository.save(skill);
-        return "redirect:/admin/skills/" + skill.getProfile().getId(); // ✅ Stay in profile context
+        return "redirect:/admin/skills/" + skill.getProfile().getId();
     }
 
-    // 🌐 Admin View: Show Form to Edit Skill
     @GetMapping("/edit/{id}")
-    public String editSkill(@PathVariable Long id, Model model) {
+    public String editSkill(@PathVariable Long id, Model model, Authentication authentication) {
         Skill skill = skillRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Invalid skill ID: " + id));
         Profile profile = skill.getProfile();
+
+        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
+
         model.addAttribute("skill", skill);
-        model.addAttribute("activeProfile", profile); // ✅ For header context
+        model.addAttribute("activeProfile", profile);
         model.addAttribute("viewName", "skill/form");
-        model.addAttribute("isAdmin", true);
         return "layout/base";
     }
 
-    // ❌ Admin View: Delete Skill
     @GetMapping("/delete/{id}")
     public String deleteSkill(@PathVariable Long id) {
         Skill skill = skillRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Invalid skill ID: " + id));
         Long profileId = skill.getProfile().getId();
+
         skillRepository.deleteById(id);
-        return "redirect:/admin/skills/" + profileId; // ✅ Stay in profile context
+        return "redirect:/admin/skills/" + profileId;
     }
 }

@@ -26,7 +26,7 @@ public class ProfileController {
         this.userRepository = userRepository;
     }
 
-    // 🌐 Admin View: List Profiles
+    // 🌐 Admin View: List all profiles
     @GetMapping
     public String listProfiles(Model model) {
         List<Profile> profiles = profileRepository.findAll();
@@ -36,51 +36,90 @@ public class ProfileController {
         return "layout/base";
     }
 
-    // 🌐 Admin View: View Profile with contextual header
+    // 🌐 Admin View: View profile with contextual header
     @GetMapping("/view/{id}")
     public String viewProfile(@PathVariable Long id, Model model) {
         Profile profile = profileRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Invalid profile ID: " + id));
-        model.addAttribute("activeProfile", profile); // ✅ Enables dynamic header
+        model.addAttribute("activeProfile", profile);
         model.addAttribute("viewName", "profile/view");
         model.addAttribute("isAdmin", true);
         return "layout/base";
     }
 
-    // 🌐 Admin View: Show Form for New Profile
+    // 🌐 User View: Show form for new profile (only if user has none)
     @GetMapping("/new")
-    public String showCreateForm(Model model) {
-        model.addAttribute("profile", new Profile());
-        model.addAttribute("viewName", "profile/form");
-        model.addAttribute("isAdmin", true);
-        return "layout/base";
-    }
+    public String showCreateForm(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+        User user = userRepository.findByUsername(userDetails.getUsername())
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-    // 🌐 Admin View: Show Form for Editing Profile
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
-        Profile profile = profileRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid profile ID: " + id));
+        Profile existingProfile = profileRepository.findByUserId(user.getId());
+        if (existingProfile != null) {
+            return "redirect:/dashboard"; // ✅ Prevent multiple profiles
+        }
+
+        Profile profile = new Profile();
+        profile.setUser(user);
         model.addAttribute("profile", profile);
         model.addAttribute("viewName", "profile/form");
-        model.addAttribute("isAdmin", true);
+        model.addAttribute("isAdmin", false);
         return "layout/base";
     }
 
-    // 📝 Admin View: Save Profile (Create or Update)
+    // 🌐 Admin/User View: Show form for editing profile
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id,
+                               Model model,
+                               @AuthenticationPrincipal UserDetails userDetails) {
+
+        Profile profile = profileRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid profile ID: " + id));
+
+        User user = userRepository.findByUsername(userDetails.getUsername())
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        boolean isAdmin = userDetails.getAuthorities().stream()
+            .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        // Optional: restrict non-admins from editing other profiles
+        if (!isAdmin && !profile.getUser().getId().equals(user.getId())) {
+            throw new SecurityException("Access denied: You can only edit your own profile.");
+        }
+
+        model.addAttribute("profile", profile);
+        model.addAttribute("viewName", "profile/form");
+        model.addAttribute("isAdmin", isAdmin); // ✅ dynamic role detection
+        return "layout/base";
+    }
+
+    // 📝 Save profile (create or update)
     @PostMapping({"/add", "/edit/{id}"})
     public String saveProfile(@ModelAttribute Profile profile,
                               @AuthenticationPrincipal UserDetails userDetails) {
+        User user = userRepository.findByUsername(userDetails.getUsername())
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
         if (profile.getUser() == null) {
-            User user = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-            profile.setUser(user); // ✅ Fixes user_id null
+            profile.setUser(user);
         }
+
+        // ✅ Enforce one profile per user
+        Profile existing = profileRepository.findByUserId(profile.getUser().getId());
+        if (existing != null && (profile.getId() == null || !existing.getId().equals(profile.getId()))) {
+            throw new IllegalStateException("User already has a profile");
+        }
+
+        // ✅ Set audit fields
+        if (profile.getId() == null) {
+            profile.setCreatedBy(user.getId());
+        }
+        profile.setUpdatedBy(user.getId());
+
         profileRepository.save(profile);
-        return "redirect:/admin/profile";
+        return "redirect:/dashboard";
     }
 
-    // ❌ Admin View: Delete Profile
+    // ❌ Admin View: Delete profile
     @GetMapping("/delete/{id}")
     public String deleteProfile(@PathVariable Long id) {
         profileRepository.deleteById(id);

@@ -8,7 +8,7 @@
           method="post"
           th:object="${job}"
           class="job-form">
-
+<input type="hidden" th:field="*{id}" />
         <!-- 🔒 Bind profile context -->
         <input type="hidden" th:field="*{profile.id}" />
 

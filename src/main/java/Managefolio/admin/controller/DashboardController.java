@@ -1,13 +1,7 @@
 package Managefolio.admin.controller;
 
-import Managefolio.admin.model.User;
-import Managefolio.admin.model.Projects;
-import Managefolio.admin.model.JobExperience;
-import Managefolio.admin.model.Profile;
-import Managefolio.admin.repository.UserRepository;
-import Managefolio.admin.repository.ProjectRepository;
-import Managefolio.admin.repository.JobExperienceRepository;
-import Managefolio.admin.repository.ProfileRepository;
+import Managefolio.admin.model.*;
+import Managefolio.admin.repository.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
@@ -20,21 +14,30 @@ import java.util.List;
 public class DashboardController {
 
     private final UserRepository userRepository;
+    private final ProfileRepository profileRepository;
     private final ProjectRepository projectRepository;
     private final JobExperienceRepository jobExperienceRepository;
-    private final ProfileRepository profileRepository;
+    private final EducationRepository educationRepository;
+    private final SkillRepository skillRepository;
+    private final AboutRepository aboutRepository;
 
     public DashboardController(UserRepository userRepository,
+                               ProfileRepository profileRepository,
                                ProjectRepository projectRepository,
                                JobExperienceRepository jobExperienceRepository,
-                               ProfileRepository profileRepository) {
+                               EducationRepository educationRepository,
+                               SkillRepository skillRepository,
+                               AboutRepository aboutRepository) {
         this.userRepository = userRepository;
+        this.profileRepository = profileRepository;
         this.projectRepository = projectRepository;
         this.jobExperienceRepository = jobExperienceRepository;
-        this.profileRepository = profileRepository;
+        this.educationRepository = educationRepository;
+        this.skillRepository = skillRepository;
+        this.aboutRepository = aboutRepository;
     }
 
-    @GetMapping("/admin/dashboard")
+    @GetMapping("/dashboard")
     public String showDashboard(Model model, Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username).orElse(null);
@@ -46,21 +49,26 @@ public class DashboardController {
             model.addAttribute("profiles", profileRepository.findAll());
             model.addAttribute("activeProfileCount", profileRepository.countByActiveTrue());
         } else if (user != null) {
+        	model.addAttribute("user", user); // ✅ Required for Thymeleaf to access ${user.username}
             Profile profile = profileRepository.findByUserId(user.getId());
+            model.addAttribute("user", user); // ✅ Required for Thymeleaf to access ${user.username}
 
-            if (profile != null) {
+            if (profile == null) {
+                model.addAttribute("noProfile", true); // ✅ flag for empty state
+            } else {
                 Long profileId = profile.getId();
 
-                List<Projects> activeProjects = projectRepository.findByProfileIdAndStatus(profileId, "ACTIVE");
-                JobExperience currentJob = jobExperienceRepository.findTopByProfileIdAndEndDateIsNull(profileId);
+                model.addAttribute("activeProfile", profile);
+                model.addAttribute("skills", skillRepository.findByProfileId(profileId));
+                model.addAttribute("projects", projectRepository.findByProfileId(profileId));
+                model.addAttribute("educationList", educationRepository.findByProfileId(profileId));
+                model.addAttribute("jobs", jobExperienceRepository.findByProfileId(profileId));
+                model.addAttribute("about", aboutRepository.findByProfileId(profileId));
 
                 model.addAttribute("profileImageUrl", profile.getProfileImage());
                 model.addAttribute("userFullName", profile.getFullName());
                 model.addAttribute("userEmail", profile.getEmail());
                 model.addAttribute("userStatus", profile.isActive() ? "Active" : "Inactive");
-                model.addAttribute("activeProjectsCount", activeProjects.size());
-                model.addAttribute("currentJob", currentJob);
-                model.addAttribute("user", user);
             }
         }
 

@@ -14,17 +14,14 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasRole('ADMIN')")
 public class UserAdminController {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Autowired private UserService userService;
+    @Autowired private PasswordEncoder passwordEncoder;
 
     @GetMapping
     public String listUsers(Model model) {
         model.addAttribute("users", userService.findAll());
         model.addAttribute("viewName", "user/list");
-        model.addAttribute("isAdmin", true); // ✅ ensures admin-only links render
+        model.addAttribute("isAdmin", true);
         return "layout/base";
     }
 
@@ -35,10 +32,18 @@ public class UserAdminController {
         model.addAttribute("isAdmin", true);
         return "layout/base";
     }
-
+    
     @PostMapping("/add")
     public String saveUser(@ModelAttribute User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // ✅ ensure password is encoded
+        
+        userService.save(user);
+        return "redirect:/admin/users";
+    }
+
+    @PostMapping("/edit")
+    public String updateUser(@ModelAttribute User user) {
+        User existing = userService.findById(user.getId()); // ✅ fetch existing user
+        user.setPassword(existing.getPassword());            // ✅ preserve original password
         userService.save(user);
         return "redirect:/admin/users";
     }
@@ -69,6 +74,7 @@ public class UserAdminController {
     public String changePassword(@RequestParam Long userId,
                                  @RequestParam String newPassword) {
         User user = userService.findById(userId);
+        
         user.setPassword(passwordEncoder.encode(newPassword));
         userService.save(user);
         return "redirect:/admin/users";

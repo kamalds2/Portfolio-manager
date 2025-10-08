@@ -5,72 +5,84 @@ import Managefolio.admin.model.Profile;
 import Managefolio.admin.repository.EducationRepository;
 import Managefolio.admin.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/admin/education")
-@PreAuthorize("hasRole('ADMIN')")
 public class EducationController {
 
     @Autowired private EducationRepository educationRepository;
     @Autowired private ProfileRepository profileRepository;
 
-    // 🌐 Admin View: List education for a profile
+    // 🌐 View: List education for a profile
     @GetMapping("/{profileId}")
-    public String listEducation(@PathVariable Long profileId, Model model) {
+    public String listEducation(@PathVariable Long profileId, Model model, Authentication authentication) {
         Profile profile = profileRepository.findById(profileId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid profile ID: " + profileId));
+
+        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
+
         model.addAttribute("educationList", educationRepository.findByProfileId(profileId));
-        model.addAttribute("activeProfile", profile); // ✅ Enables dynamic header
+        model.addAttribute("activeProfile", profile);
         model.addAttribute("viewName", "education/list");
-        model.addAttribute("isAdmin", true);
         return "layout/base";
     }
 
-    // 🌐 Admin View: Show form to create education
+    // 🌐 View: Show form to create education
     @GetMapping("/new/{profileId}")
-    public String createEducationForm(@PathVariable Long profileId, Model model) {
+    public String createEducationForm(@PathVariable Long profileId, Model model, Authentication authentication) {
         Profile profile = profileRepository.findById(profileId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid profile ID: " + profileId));
+
+        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
+
         Education education = new Education();
         education.setProfile(profile);
+
         model.addAttribute("education", education);
         model.addAttribute("activeProfile", profile);
         model.addAttribute("viewName", "education/form");
-        model.addAttribute("isAdmin", true);
         return "layout/base";
     }
 
-    // 📝 Admin View: Save education (create or update)
+    // 📝 Save education (create or update)
     @PostMapping("/add")
     public String saveEducation(@ModelAttribute Education education) {
         educationRepository.save(education);
-        return "redirect:/admin/education/" + education.getProfile().getId(); // ✅ Stay in profile context
+        return "redirect:/admin/education/" + education.getProfile().getId();
     }
 
-    // 🌐 Admin View: Show form to edit education
+    // 🌐 View: Show form to edit education
     @GetMapping("/edit/{id}")
-    public String editEducation(@PathVariable Long id, Model model) {
+    public String editEducation(@PathVariable Long id, Model model, Authentication authentication) {
         Education education = educationRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Invalid education ID: " + id));
+
         Profile profile = education.getProfile();
+
+        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
+
         model.addAttribute("education", education);
-        model.addAttribute("activeProfile", profile); // ✅ For header context
+        model.addAttribute("activeProfile", profile);
         model.addAttribute("viewName", "education/form");
-        model.addAttribute("isAdmin", true);
         return "layout/base";
     }
 
-    // ❌ Admin View: Delete education
+    // ❌ Delete education
     @GetMapping("/delete/{id}")
     public String deleteEducation(@PathVariable Long id) {
         Education education = educationRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Invalid education ID: " + id));
+
         Long profileId = education.getProfile().getId();
         educationRepository.deleteById(id);
-        return "redirect:/admin/education/" + profileId; // ✅ Stay in profile context
+        return "redirect:/admin/education/" + profileId;
     }
 }

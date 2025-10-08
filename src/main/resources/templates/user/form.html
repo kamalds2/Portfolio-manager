@@ -1,7 +1,8 @@
 <div th:fragment="content">
     <h2 th:text="${user.id != null ? 'Edit User' : 'Add New User'}">User Form</h2>
-    <form th:action="${user.id != null} ? @{/admin/users/edit/__${user.id}__} : @{/admin/users/add}"
+    <form th:action="${user.id != null} ? @{/admin/users/edit} : @{/admin/users/add}"
           method="post" th:object="${user}">
+          <input type="hidden" th:field="*{id}" />
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" th:field="*{username}" required />
@@ -20,10 +21,13 @@
             </select>
         </div>
 
-        <div class="form-group">
-            <label for="enabled">Enabled</label>
-            <input type="checkbox" th:field="*{enabled}" />
-        </div>
+		        <div class="form-group">
+		    <label for="enabled">Enabled</label>
+		    <select id="enabled" th:field="*{enabled}" required>
+		        <option th:value="true">Enabled</option>
+		        <option th:value="false">Disabled</option>
+		    </select>
+		</div>
 
         <button type="submit" class="btn btn-primary">Save</button>
         <a th:href="@{/admin/users}" class="btn btn-secondary">Cancel</a>

@@ -5,6 +5,11 @@ package Managefolio.admin.model;
 	import java.time.LocalDateTime;
 	import java.util.List;
 
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+
 	@Entity
 	@Table(name = "tbl_profile")
 	@Data
@@ -18,36 +23,31 @@ package Managefolio.admin.model;
 	    private Long id;
 
 	    private String fullName;
-
-	    private String title; // e.g., "Full-Stack Developer"
-
+	    private String title;
 	    @Column(columnDefinition = "TEXT")
 	    private String bio;
-
 	    private String location;
-
 	    private String email;
-
 	    private String phone;
-
 	    private String profileImage;
-
 	    private String resumeUrl;
-
 	    private boolean active;
 
+	    @CreatedDate
 	    private LocalDateTime createdAt;
 
+	    @LastModifiedDate
 	    private LocalDateTime updatedAt;
 
-	    private Integer createdBy;
+	    @CreatedBy
+	    private Long createdBy;
 
-	    private Integer updatedBy;
-	    
+	    @LastModifiedBy
+	    private Long updatedBy;
+
 	    @ManyToOne(fetch = FetchType.LAZY)
 	    @JoinColumn(name = "user_id", nullable = false)
 	    private User user;
-
 
 	    @PrePersist
 	    protected void onCreate() {
@@ -66,6 +66,7 @@ package Managefolio.admin.model;
 
 	    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL)
 	    private List<JobExperience> experiences;
+
 	    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	    private List<Skill> skills;
 
@@ -74,5 +75,4 @@ package Managefolio.admin.model;
 
 	    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	    private List<About> aboutSections;
-
 	}

@@ -1,12 +1,9 @@
 package Managefolio.admin.config;
 
 import jakarta.servlet.Filter;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,8 +12,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import Managefolio.admin.services.CustomUserDetailsService;
-
-import java.io.IOException;
 
 @Configuration
 public class SecurityConfig {
@@ -32,12 +27,23 @@ public class SecurityConfig {
         http
             .addFilterBefore(loginDebugFilter(), UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
-            		.requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-                .anyRequest().permitAll()
+                // 🔐 Admin-only routes
+                .requestMatchers("/admin/users/**", "/admin/profile", "/admin/profile/view/**", "/admin/profile/delete/**").hasAuthority("ROLE_ADMIN")
+
+                // 👤 Shared routes (accessible by both roles)
+                .requestMatchers("/dashboard", "/admin/dashboard").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                .requestMatchers("/admin/profile/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                .requestMatchers("/admin/skills/**", "/admin/projects/**", "/admin/education/**", "/admin/jobs/**", "/admin/about/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+
+                // Public routes
+                .requestMatchers("/login", "/forgot-password", "/css/**", "/js/**", "/images/**").permitAll()
+
+                // All other routes require authentication
+                .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/admin/dashboard", true)
+                .defaultSuccessUrl("/dashboard", true) // ✅ shared dashboard for both roles
                 .permitAll()
             )
             .logout(logout -> logout

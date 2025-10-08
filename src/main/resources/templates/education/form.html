@@ -1,10 +1,19 @@
 <div th:fragment="content">
     <div class="page-header">
-        <h2 th:text="${education.id != null ? 'Edit Education' : 'Add New Education'}">Education Form</h2>
+        <h2>
+            <span th:if="${education.id != null}">Edit Education</span>
+            <span th:unless="${education.id != null}">Add New Education</span>
+            for <strong th:text="${activeProfile.fullName}">Profile Name</strong>
+            (<span th:text="${activeProfile.title}">Role</span>)
+        </h2>
         <a th:href="@{'/admin/education/' + ${education.profile.id}}" class="btn btn-secondary">Back to Education</a>
     </div>
 
     <form th:action="@{/admin/education/add}" method="post" th:object="${education}" class="profile-form">
+
+    <input type="hidden" th:field="*{id}" /> <!-- ✅ This is the missing piece -->
+    <input type="hidden" th:field="*{profile.id}" />
+
         <input type="hidden" th:field="*{profile.id}" />
 
         <div class="form-grid">
@@ -45,16 +54,13 @@
                 <small class="form-help">Select the highest level achieved for this entry</small>
             </div>
 
-            <div class="form-group full-width">
-                <label for="description">Description (optional)</label>
-                <textarea id="description" th:field="*{description}" rows="4"
-                          placeholder="Add any notes or achievements..."></textarea>
-            </div>
+           
         </div>
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">
-                <span th:text="${education.id != null ? 'Update Education' : 'Add Education'}">Save</span>
+                <span th:if="${education.id != null}">Update Education</span>
+                <span th:unless="${education.id != null}">Add Education</span>
             </button>
             <a th:href="@{'/admin/education/' + ${education.profile.id}}" class="btn btn-secondary">Cancel</a>
         </div>

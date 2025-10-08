@@ -1,10 +1,16 @@
 <div th:fragment="content">
     <div class="page-header">
-        <h2 th:text="${skill.id != null ? 'Edit Skill' : 'Add New Skill'}">Skill Form</h2>
+        <h2>
+            <span th:if="${skill.id != null}">Edit Skill</span>
+            <span th:unless="${skill.id != null}">Add New Skill</span>
+            for <strong th:text="${activeProfile.fullName}">Profile Name</strong>
+            (<span th:text="${activeProfile.title}">Role</span>)
+        </h2>
         <a th:href="@{'/admin/skills/' + ${skill.profile.id}}" class="btn btn-secondary">Back to Skills</a>
     </div>
 
     <form th:action="@{/admin/skills/add}" method="post" th:object="${skill}" class="profile-form">
+    <input type="hidden" th:field="*{id}" />
         <input type="hidden" th:field="*{profile.id}" />
 
         <div class="form-grid">
@@ -23,16 +29,13 @@
                 <small class="form-help">Choose the proficiency level for this skill</small>
             </div>
 
-            <div class="form-group full-width">
-                <label for="description">Skill Description</label>
-                <textarea id="description" th:field="*{description}" rows="4"
-                          placeholder="Optional: Add a short description"></textarea>
-            </div>
+           
         </div>
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">
-                <span th:text="${skill.id != null ? 'Update Skill' : 'Add Skill'}">Save</span>
+                <span th:if="${skill.id != null}">Update Skill</span>
+                <span th:unless="${skill.id != null}">Add Skill</span>
             </button>
             <a th:href="@{'/admin/skills/' + ${skill.profile.id}}" class="btn btn-secondary">Cancel</a>
         </div>

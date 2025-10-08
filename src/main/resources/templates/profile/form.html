@@ -1,14 +1,14 @@
 <div th:fragment="content">
     <div class="page-header">
         <h2 th:text="${profile.id != null ? 'Edit Profile' : 'Add New Profile'}">Profile Form</h2>
-        <a th:href="@{/admin/profile}" class="btn btn-secondary">Back to Profiles</a>
+        <a th:href="${isAdmin} ? @{/admin/profile} : @{/dashboard}" class="btn btn-secondary">Back</a>
     </div>
 
-    <form th:action="${profile.id != null} ? @{/admin/profile/edit/__${profile.id}__} : @{/admin/profile/add}"
-          method="post" 
+    <form th:action="${profile.id != null} ? @{/admin/profile/edit/{id}(id=${profile.id})} : @{/admin/profile/add}"
+          method="post"
           th:object="${profile}"
           class="profile-form">
-        
+
         <div class="form-grid">
             <div class="form-group">
                 <label for="fullName">Full Name *</label>
@@ -27,7 +27,7 @@
 
             <div class="form-group">
                 <label for="phone">Phone Number</label>
-                <input type="text" id="phone" th:field="*{phone}" placeholder="+1 (555) 123-4567">
+                <input type="text" id="phone" th:field="*{phone}" placeholder="+91 98765 43210">
             </div>
 
             <div class="form-group">
@@ -51,20 +51,21 @@
             </div>
         </div>
 
-       <div class="form-group">
-                <label for="status">Profile Status *</label>
-                <select id="status" th:field="*{active}" required>
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                </select>
-                <small class="form-help">Active Profile are visible in your public portfolio</small>
-            </div>
+        <!-- ✅ Only show status toggle for admins -->
+        <div class="form-group">
+            <label for="status">Profile Status *</label>
+            <select id="status" th:field="*{active}" required>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+            </select>
+            <small class="form-help">Active profiles are visible in your public portfolio</small>
+        </div>
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">
                 <span th:text="${profile.id != null ? 'Update Profile' : 'Create Profile'}">Save Profile</span>
             </button>
-            <a th:href="@{/admin/profile}" class="btn btn-secondary">Cancel</a>
+            <a th:href="${isAdmin} ? @{/admin/profile} : @{/dashboard}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
 </div>

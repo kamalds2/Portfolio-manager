@@ -14,14 +14,16 @@
                     <th>Title</th>
                     <th>Category</th>
                     <th>Status</th>
-                    <th>Featured</th>
+
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="project : ${projects}" th:class="${project.active} ? 'active' : 'inactive'">
                     <td>
-                        <strong th:text="${project.title}">Project Title</strong>
+                        <a th:href="@{'/admin/projects/edit/' + ${project.id}}" class="project-link">
+                            <strong th:text="${project.title}">Project Title</strong>
+                        </a>
                         <div th:if="${project.description}" class="project-description"
                              th:text="${#strings.abbreviate(project.description, 80)}">Description</div>
                     </td>
@@ -30,10 +32,7 @@
                         <span th:class="'status-badge ' + (${project.status} != null ? ${project.status.toLowerCase().replace(' ', '-')} : 'unknown')"
                               th:text="${project.status} ?: 'Draft'">Status</span>
                     </td>
-                    <td>
-                        <span th:if="${project.featured}" class="featured-badge">⭐ Featured</span>
-                        <span th:unless="${project.featured}" class="text-muted">-</span>
-                    </td>
+                   
                     <td class="actions">
                         <a th:href="@{'/admin/projects/edit/' + ${project.id}}" class="btn-edit">Edit</a>
                         <a th:href="@{'/admin/projects/delete/' + ${project.id}}"
