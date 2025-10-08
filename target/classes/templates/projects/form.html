@@ -1,0 +1,83 @@
+<div th:fragment="content">
+    <div class="page-header">
+        <h2>
+            <span th:text="${project.id != null ? 'Edit Project' : 'Add New Project'}">Project Form</span>
+            for <strong th:text="${activeProfile.fullName}">Profile Name</strong>
+            (<span th:text="${activeProfile.title}">Role</span>)
+        </h2>
+        <a th:href="@{'/admin/projects/' + ${project.profile.id}}" class="btn btn-secondary">Back to Projects</a>
+    </div>
+
+    <form th:action="${project.id != null} ? @{/admin/projects/edit/__${project.id}__} : @{/admin/projects/add}"
+          method="post"
+          th:object="${project}"
+          class="project-form">
+
+        <!-- 🔒 Bind profile context -->
+        <input type="hidden" th:field="*{profile.id}" />
+
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label for="title">Project Title *</label>
+                <input type="text" id="title" th:field="*{title}" placeholder="Enter project title" required />
+            </div>
+
+            <div class="form-group full-width">
+                <label for="description">Project Description</label>
+                <textarea id="description" th:field="*{description}" placeholder="Describe your project..." rows="5"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="techStack">Technologies Used</label>
+                <input type="text" id="techStack" th:field="*{techStack}" placeholder="e.g., Java, Spring Boot, React" />
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" th:field="*{category}">
+                    <option value="">Select Category</option>
+                    <option value="Web Application">Web Application</option>
+                    <option value="Mobile App">Mobile App</option>
+                    <option value="API Development">API Development</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Project Status</label>
+                <select id="status" th:field="*{status}">
+                    <option value="Planning">Planning</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Live">Live</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="projectUrl">Project URL</label>
+                <input type="url" id="projectUrl" th:field="*{projectUrl}" placeholder="https://example.com" />
+            </div>
+
+            <div class="form-group">
+                <label for="imageUrl">Project Image URL</label>
+                <input type="url" id="imageUrl" th:field="*{imageUrl}" placeholder="https://example.com/project-image.jpg" />
+            </div>
+
+            <div class="form-group">
+                <label for="active">Visibility *</label>
+                <select id="active" th:field="*{active}" required>
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+                <small class="form-help">Active projects are visible in your public portfolio</small>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <span th:text="${project.id != null ? 'Update Project' : 'Create Project'}">Save Project</span>
+            </button>
+            <a th:href="@{'/admin/projects/' + ${project.profile.id}}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

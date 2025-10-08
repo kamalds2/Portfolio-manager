@@ -1,0 +1,51 @@
+<div th:fragment="content">
+    <div class="page-header">
+        <h2>
+            Education for <span th:text="${activeProfile.fullName}">Profile Name</span>
+            (<span th:text="${activeProfile.title}">Role</span>)
+        </h2>
+        <a th:href="@{'/admin/education/new/' + ${activeProfile.id}}" class="btn btn-primary">Add New Education</a>
+    </div>
+
+    <div class="table-container">
+        <table class="education-table">
+            <thead>
+                <tr>
+                    <th>Institution</th>
+                    <th>Degree</th>
+                    <th>Field</th>
+                    <th>Years</th>
+                    <th>Level</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="edu : ${educationList}" th:class="${edu.level != null} ? 'active' : 'inactive'">
+                    <td>
+                        <strong th:text="${edu.institution}">Institution</strong>
+                        
+                    </td>
+                    <td th:text="${edu.degree} ?: 'N/A'">Degree</td>
+                    <td th:text="${edu.fieldOfStudy} ?: 'N/A'">Field</td>
+                    <td th:text="${edu.startYear + ' - ' + edu.endYear}">Years</td>
+                   <td>
+    <span class="status-badge"
+          th:text="${edu.level} ?: 'Unspecified'">Level</span>
+</td>
+                    <td class="actions">
+                        <a th:href="@{'/admin/education/edit/' + ${edu.id}}" class="btn-edit">Edit</a>
+                        <a th:href="@{'/admin/education/delete/' + ${edu.id}}"
+                           class="btn-delete"
+                           onclick="return confirm('Are you sure you want to delete this education entry?')">Delete</a>
+                    </td>
+                </tr>
+                <tr th:if="${educationList.empty}">
+                    <td colspan="6" class="no-data">
+                        No education records found for this profile.
+                        <a th:href="@{'/admin/education/new/' + ${activeProfile.id}}">Add your first education entry</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

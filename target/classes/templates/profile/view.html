@@ -1,0 +1,38 @@
+<div th:fragment="content">
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-image-section">
+                <div class="profile-image-wrapper">
+                    <img th:if="${activeProfile.profileImage}"
+                         th:src="${activeProfile.profileImage}"
+                         alt="Profile Image"
+                         class="profile-image">
+                    <img th:unless="${activeProfile.profileImage}"
+                         src="/images/default-avatar.png"
+                         alt="Default Profile Image"
+                         class="profile-image">
+                </div>
+            </div>
+
+            <div class="profile-info-section">
+                <h2 th:text="'Profile Overview: ' + ${activeProfile.fullName}">Profile Overview</h2>
+                <div class="profile-badge" th:text="${activeProfile.title} ?: 'No title provided'"></div>
+
+                <div class="profile-details">
+                    <div class="detail-item">
+                        <i class="fas fa-envelope"></i>
+                        <span th:text="${activeProfile.email}"></span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-phone"></i>
+                        <span th:text="${activeProfile.phone} ?: 'Not provided'"></span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span th:text="${activeProfile.location} ?: 'Location not set'"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
