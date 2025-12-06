@@ -10,6 +10,9 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 	@Entity
 	@Table(name = "tbl_profile")
 	@Data
@@ -44,10 +47,11 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 	    @LastModifiedBy
 	    private Long updatedBy;
-
-	    @ManyToOne(fetch = FetchType.LAZY)
-	    @JoinColumn(name = "user_id", nullable = false)
-	    private User user;
+	    
+		@JsonBackReference
+		@ManyToOne(fetch = FetchType.LAZY)
+		@JoinColumn(name = "user_id", nullable = false)
+		private User user;
 
 	    @PrePersist
 	    protected void onCreate() {
@@ -60,19 +64,24 @@ import org.springframework.data.annotation.LastModifiedDate;
 	        updatedAt = LocalDateTime.now();
 	    }
 
-	    // Relationships
-	    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL)
-	    private List<Projects> projects;
+		// Relationships (prevent recursive JSON by managing child collections)
+		@JsonManagedReference
+		@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL)
+		private List<Projects> projects;
 
-	    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL)
-	    private List<JobExperience> experiences;
+		@JsonManagedReference
+		@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL)
+		private List<JobExperience> experiences;
 
-	    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	    private List<Skill> skills;
+		@JsonManagedReference
+		@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+		private List<Skill> skills;
 
-	    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	    private List<Education> educationList;
+		@JsonManagedReference
+		@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+		private List<Education> educationList;
 
-	    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	    private List<About> aboutSections;
+		@JsonManagedReference
+		@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+		private List<About> aboutSections;
 	}

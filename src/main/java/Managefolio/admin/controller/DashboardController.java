@@ -7,8 +7,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
 import java.util.List;
+
 
 @Controller
 public class DashboardController {
@@ -38,20 +38,26 @@ public class DashboardController {
     }
 
     @GetMapping("/dashboard")
-    public String showDashboard(Model model, Authentication authentication) {
+    public String showDashboard(Model model, Authentication authentication,
+                               @org.springframework.web.bind.annotation.RequestParam(required = false) String error) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username).orElse(null);
 
         boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
         model.addAttribute("isAdmin", isAdmin);
 
+        // Handle error messages
+        if ("profile_exists".equals(error)) {
+            model.addAttribute("errorMessage", "You can only create one profile per user. Please edit your existing profile instead.");
+        }
+
         if (isAdmin) {
             model.addAttribute("profiles", profileRepository.findAll());
             model.addAttribute("activeProfileCount", profileRepository.countByActiveTrue());
         } else if (user != null) {
         	model.addAttribute("user", user); // ✅ Required for Thymeleaf to access ${user.username}
-            Profile profile = profileRepository.findByUserId(user.getId());
-            model.addAttribute("user", user); // ✅ Required for Thymeleaf to access ${user.username}
+            List<Profile> userProfiles = profileRepository.findByUserId(user.getId());
+            Profile profile = userProfiles.isEmpty() ? null : userProfiles.get(0); // Get first profile
 
             if (profile == null) {
                 model.addAttribute("noProfile", true); // ✅ flag for empty state
@@ -59,6 +65,7 @@ public class DashboardController {
                 Long profileId = profile.getId();
 
                 model.addAttribute("activeProfile", profile);
+                model.addAttribute("userProfile", profile); // ✅ Add userProfile for template access
                 model.addAttribute("skills", skillRepository.findByProfileId(profileId));
                 model.addAttribute("projects", projectRepository.findByProfileId(profileId));
                 model.addAttribute("educationList", educationRepository.findByProfileId(profileId));

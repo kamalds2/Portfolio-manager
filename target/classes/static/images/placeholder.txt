@@ -1,0 +1,2 @@
+<!-- This is a placeholder - in a real app you'd add an actual no-image.png file -->
+<!-- For now, this will be handled by the CSS no-image class styling -->

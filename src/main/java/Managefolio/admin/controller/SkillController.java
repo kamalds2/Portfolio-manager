@@ -2,15 +2,17 @@ package Managefolio.admin.controller;
 
 import Managefolio.admin.model.Skill;
 import Managefolio.admin.model.Profile;
+import Managefolio.admin.model.User;
 import Managefolio.admin.repository.SkillRepository;
 import Managefolio.admin.repository.ProfileRepository;
+import Managefolio.admin.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 
 @Controller
@@ -19,6 +21,18 @@ public class SkillController {
 
     @Autowired private SkillRepository skillRepository;
     @Autowired private ProfileRepository profileRepository;
+    @Autowired private UserRepository userRepository;
+
+    private void addUserProfileForNavigation(Model model, Authentication authentication, boolean isAdmin) {
+        if (!isAdmin) {
+            User user = userRepository.findByUsername(authentication.getName()).orElse(null);
+            if (user != null) {
+                List<Profile> userProfiles = profileRepository.findByUserId(user.getId());
+                Profile userProfile = userProfiles.isEmpty() ? null : userProfiles.get(0);
+                model.addAttribute("userProfile", userProfile);
+            }
+        }
+    }
 
     @GetMapping
     public String redirectToFirstProfile() {
@@ -36,6 +50,7 @@ public class SkillController {
 	
 	        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
 	        model.addAttribute("isAdmin", isAdmin);
+	        addUserProfileForNavigation(model, authentication, isAdmin);
 	
 	        model.addAttribute("skills", skillRepository.findByProfileId(profileId));
 	        model.addAttribute("activeProfile", profile);
@@ -50,6 +65,7 @@ public class SkillController {
 
         boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
         model.addAttribute("isAdmin", isAdmin);
+        addUserProfileForNavigation(model, authentication, isAdmin);
 
         Skill skill = new Skill();
         skill.setProfile(profile);
@@ -61,7 +77,7 @@ public class SkillController {
     }
 
     @PostMapping("/add")
-    public String saveSkill(@ModelAttribute Skill skill) {
+    public String saveSkill(@ModelAttribute Skill skill, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         skillRepository.save(skill);
         return "redirect:/admin/skills/" + skill.getProfile().getId();
     }
@@ -74,6 +90,7 @@ public class SkillController {
 
         boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
         model.addAttribute("isAdmin", isAdmin);
+        addUserProfileForNavigation(model, authentication, isAdmin);
 
         model.addAttribute("skill", skill);
         model.addAttribute("activeProfile", profile);

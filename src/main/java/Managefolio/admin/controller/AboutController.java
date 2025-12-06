@@ -53,7 +53,7 @@ public class AboutController {
 
     // 📝 Save or update About section
     @PostMapping("/save")
-    public String saveAbout(@ModelAttribute About about) {
+    public String saveAbout(@ModelAttribute About about, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         aboutRepository.save(about);
         return "redirect:/admin/about/" + about.getProfile().getId(); // ✅ Stay in profile context
     }

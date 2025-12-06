@@ -77,19 +77,27 @@ public class JobExperienceController {
 
     // 📝 Save job (create or update)
     @PostMapping({"/add", "/edit/{id}"})
-    public String saveJob(@ModelAttribute JobExperience job) {
+    public String saveJob(@ModelAttribute JobExperience job, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        boolean isNew = job.getId() == null;
         jobRepository.save(job);
+        redirectAttributes.addFlashAttribute("successMessage", 
+            isNew ? "Job experience added successfully!" : "Job experience updated successfully!");
         return "redirect:/admin/jobs/" + job.getProfile().getId();
     }
 
     // ❌ Delete job
     @GetMapping("/delete/{id}")
-    public String deleteJob(@PathVariable Long id) {
-        JobExperience job = jobRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid job ID: " + id));
-        Long profileId = job.getProfile().getId();
-
-        jobRepository.deleteById(id);
-        return "redirect:/admin/jobs/" + profileId;
+    public String deleteJob(@PathVariable Long id, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            JobExperience job = jobRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid job ID: " + id));
+            Long profileId = job.getProfile().getId();
+            jobRepository.deleteById(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Job experience deleted successfully!");
+            return "redirect:/admin/jobs/" + profileId;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete job experience: " + e.getMessage());
+            return "redirect:/dashboard";
+        }
     }
 }

@@ -1,48 +1,66 @@
 <div th:fragment="content">
-    <div class="page-header">
-        <h2>Manage Profiles</h2>
-        <a th:href="@{/admin/profile/new}" class="btn btn-primary">Add New Profile</a>
-    </div>
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Manage Profiles</h1>
+            <a th:href="@{/admin/profile/new}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Profile
+            </a>
+        </div>
 
-    <div class="table-container">
-        <table class="profile-table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Title</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="profile : ${profiles}" th:class="${profile.active} ? 'active' : 'inactive'">
-                    <td>
-                        <a th:href="@{'/admin/profile/view/' + ${profile.id}}" class="profile-link">
+        <div class="table-container">
+            <table class="table datatable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Title</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="profile : ${profiles}">
+                        <td>
                             <strong th:text="${profile.fullName}">Name</strong>
-                        </a>
-                    </td>
-                    <td th:text="${profile.title} ?: 'No title'">Title</td>
-                    <td th:text="${profile.email}">Email</td>
-                    <td>
-                        <span th:if="${profile.active}" class="status-badge active">Active</span>
-                        <span th:unless="${profile.active}" class="status-badge inactive">Inactive</span>
-                    </td>
-                    <td class="actions">
-                        <a th:href="@{'/admin/profile/view/' + ${profile.id}}" class="btn-secondary">View</a>
-                        <a th:href="@{'/admin/profile/edit/' + ${profile.id}}" class="btn-edit">Edit</a>
-                        <a th:href="@{'/admin/profile/delete/' + ${profile.id}}"
-                           class="btn-delete"
-                           onclick="return confirm('Are you sure you want to delete this profile?')">Delete</a>
-                    </td>
-                </tr>
-                <tr th:if="${profiles.empty}">
-                    <td colspan="5" class="no-data">
-                        No profiles found.
-                        <a th:href="@{/admin/profile/new}">Create the first profile</a>
-                    </td>
-                </tr>
-            </tbody>
+                        </td>
+                        <td th:text="${profile.title} ?: 'No title'">Title</td>
+                        <td th:text="${profile.email}">Email</td>
+                        <td>
+                            <span th:if="${profile.active}" class="badge badge-success">Active</span>
+                            <span th:unless="${profile.active}" class="badge badge-danger">Inactive</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a th:href="@{'/admin/profile/view/' + ${profile.id}}" 
+                                   class="btn btn-sm btn-outline-primary" title="View Profile">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <a th:href="@{'/admin/profile/edit/' + ${profile.id}}" 
+                                   class="btn btn-sm btn-secondary" title="Edit Profile">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a th:href="@{'/admin/profile/delete/' + ${profile.id}}"
+                                   class="btn btn-sm btn-outline-danger" title="Delete Profile"
+                                   onclick="return confirm('Are you sure you want to delete this profile?')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${profiles.empty}">
+                        <td colspan="5" class="text-center">
+                            <div style="padding: 2rem;">
+                                <h3>No profiles found</h3>
+                                <p>Get started by creating your first profile!</p>
+                                <a th:href="@{/admin/profile/new}" class="btn btn-primary">Create Profile</a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
         </table>
     </div>
 </div>

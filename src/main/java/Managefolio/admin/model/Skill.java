@@ -2,6 +2,7 @@ package Managefolio.admin.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 
 
@@ -32,7 +33,8 @@ public class Skill {
 
 	    @ManyToOne(fetch = FetchType.LAZY)
 	    @JoinColumn(name = "profile_id", nullable = false)
-	    private Profile profile;
+		@JsonBackReference
+		private Profile profile;
 
 	    
 	}

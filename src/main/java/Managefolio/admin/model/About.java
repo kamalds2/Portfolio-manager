@@ -2,6 +2,7 @@ package Managefolio.admin.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "tbl_about")
@@ -20,5 +21,6 @@ public class About {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id", nullable = false, unique = true)
+    @JsonBackReference
     private Profile profile;
 }

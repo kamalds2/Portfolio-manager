@@ -4,7 +4,10 @@ import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import Managefolio.admin.services.CustomUserDetailsService;
 
 @Configuration
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
@@ -27,28 +31,34 @@ public class SecurityConfig {
         http
             .addFilterBefore(loginDebugFilter(), UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
-                // 🔐 Admin-only routes
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
+                .requestMatchers("/login", "/forgot-password", "/uploads/**").permitAll()
+                .requestMatchers("/api/**").permitAll()
+                .requestMatchers("/api/keepalive").authenticated()
                 .requestMatchers("/admin/users/**", "/admin/profile", "/admin/profile/view/**", "/admin/profile/delete/**").hasAuthority("ROLE_ADMIN")
-
-                // 👤 Shared routes (accessible by both roles)
-                .requestMatchers("/dashboard", "/admin/dashboard").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
-                .requestMatchers("/admin/profile/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                .requestMatchers("/dashboard", "/admin/dashboard", "/admin/profile/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                 .requestMatchers("/admin/skills/**", "/admin/projects/**", "/admin/education/**", "/admin/jobs/**", "/admin/about/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
-
-                // Public routes
-                .requestMatchers("/login", "/forgot-password", "/css/**", "/js/**", "/images/**").permitAll()
-
-                // All other routes require authentication
+                .requestMatchers(HttpMethod.GET, "/portfolio/**").permitAll()
+                .requestMatchers("/portfolio/profiles/**/upload-image", "/portfolio/profiles/**/upload-resume").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/dashboard", true) // ✅ shared dashboard for both roles
+                .defaultSuccessUrl("/dashboard", true)
                 .permitAll()
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID")
+            )
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .invalidSessionUrl("/login?expired")
+                .maximumSessions(1) // Allow only 1 session per user
+                .maxSessionsPreventsLogin(false) // Don't prevent login, just invalidate old sessions
             )
             .userDetailsService(customUserDetailsService)
             .csrf().disable();
@@ -62,23 +72,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        return customUserDetailsService;
-    }
-
-    @Bean
     public Filter loginDebugFilter() {
         return (request, response, chain) -> {
             if (request instanceof HttpServletRequest req &&
                 "/login".equals(req.getRequestURI()) &&
                 "POST".equalsIgnoreCase(req.getMethod())) {
 
-                String username = req.getParameter("username");
-                String password = req.getParameter("password");
-
                 System.out.println("🔐 Login Attempt:");
-                System.out.println("Username: " + username);
-                System.out.println("Password: " + password); // ⚠️ Don't log this in production
+                System.out.println("Username: " + req.getParameter("username"));
+                System.out.println("Password: " + req.getParameter("password")); // ⚠️ Avoid in production
             }
             chain.doFilter(request, response);
         };

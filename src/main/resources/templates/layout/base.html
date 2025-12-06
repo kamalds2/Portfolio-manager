@@ -4,60 +4,107 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Managefolio Admin</title>
-    <link rel="stylesheet" th:href="@{/css/admin.css}" />
-    <script th:src="@{/js/admin.js}" defer></script>
+    <link rel="stylesheet" th:href="@{/css/admin.css(v=${#dates.createNow().time})}" />
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+    <!-- jQuery + DataTables (load before admin.js) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script th:src="@{/js/admin.js(v=${#dates.createNow().time})}" defer></script>
 </head>
 <body>
+
 <header>
-    <h1>Managefolio Admin</h1>
-    <nav>
-        <ul class="nav-row">
-            <!-- Shared Dashboard -->
-            <li><a th:href="@{/dashboard}">Dashboard</a></li>
+    <div class="header-bar">
+        <div class="header-brand">
+            <i class="fas fa-rocket"></i>
+            <span>Managefolio Admin</span>
+        </div>
 
-            <!-- Admin-only: Profile list -->
-            <li th:if="${isAdmin}">
-                <a th:href="@{/admin/profile}">Profiles</a>
-            </li>
+        <nav th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+            <a th:href="@{/dashboard}" class="nav-link">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a th:href="@{/admin/profile}" class="nav-link">
+                <i class="fas fa-users"></i> Profiles
+            </a>
+            <a class="nav-link" th:if="${activeProfile != null}" th:href="@{'/admin/skills/' + ${activeProfile.id}}">
+                🎯 Skills
+            </a>
+            <a class="nav-link" th:if="${activeProfile != null}" th:href="@{'/admin/projects/' + ${activeProfile.id}}">
+                🚀 Projects
+            </a>
+            <a class="nav-link" th:if="${activeProfile != null}" th:href="@{'/admin/education/' + ${activeProfile.id}}">
+                🎓 Education
+            </a>
+            <a class="nav-link" th:if="${activeProfile != null}" th:href="@{'/admin/jobs/' + ${activeProfile.id}}">
+                💼 Jobs
+            </a>
+            <a class="nav-link" th:if="${activeProfile != null}" th:href="@{'/admin/about/' + ${activeProfile.id}}">
+                📝 About
+            </a>
+            <a th:href="@{/admin/users}" class="nav-link">
+                <i class="fas fa-user-cog"></i> User Management
+            </a>
+        </nav>
 
-            <!-- 🔄 Dynamic profile context for both roles -->
-            <li th:if="${activeProfile != null}">
-                <a th:href="@{'/admin/skills/' + ${activeProfile.id}}">Skills</a>
-            </li>
-            <li th:if="${activeProfile != null}">
-                <a th:href="@{'/admin/projects/' + ${activeProfile.id}}">Projects</a>
-            </li>
-            <li th:if="${activeProfile != null}">
-                <a th:href="@{'/admin/education/' + ${activeProfile.id}}">Education</a>
-            </li>
-            <li th:if="${activeProfile != null}">
-                <a th:href="@{'/admin/jobs/' + ${activeProfile.id}}">Jobs</a>
-            </li>
-            <li th:if="${activeProfile != null}">
-                <a th:href="@{'/admin/about/' + ${activeProfile.id}}">About</a>
-            </li>
+        <!-- User Navigation -->
+        <nav th:unless="${#authorization.expression('hasRole(''ADMIN'')')}" th:if="${#authentication.isAuthenticated()}">
+            <a th:href="@{/dashboard}" class="nav-link">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a class="nav-link" th:if="${userProfile != null}" th:href="@{'/admin/profile/edit/' + ${userProfile.id}}">
+                <i class="fas fa-user-edit"></i> Edit Profile
+            </a>
+            <a class="nav-link" th:if="${userProfile != null}" th:href="@{'/admin/skills/' + ${userProfile.id}}">
+                🎯 Skills
+            </a>
+            <a class="nav-link" th:if="${userProfile != null}" th:href="@{'/admin/projects/' + ${userProfile.id}}">
+                🚀 Projects
+            </a>
+            <a class="nav-link" th:if="${userProfile != null}" th:href="@{'/admin/education/' + ${userProfile.id}}">
+                🎓 Education
+            </a>
+            <a class="nav-link" th:if="${userProfile != null}" th:href="@{'/admin/jobs/' + ${userProfile.id}}">
+                💼 Jobs
+            </a>
+            <a class="nav-link" th:if="${userProfile != null}" th:href="@{'/admin/about/' + ${userProfile.id}}">
+                📝 About
+            </a>
+        </nav>
 
-            <!-- Admin-only: User management -->
-            <li th:if="${isAdmin}">
-                <a th:href="@{/admin/users}">User Management</a>
-            </li>
-
-            <!-- Logout -->
-            <li>
-                <form th:action="@{/logout}" method="post" style="display:inline;">
-                    <button type="submit" class="btn-link">Logout</button>
-                </form>
-            </li>
-        </ul>
-    </nav>
+        <div th:if="${#authentication.name}">
+            <a th:href="@{/logout}" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
 </header>
 
+
 <main>
+    <!-- Flash Messages -->
+    <div th:if="${successMessage}" class="flash-message flash-success" data-message="success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${successMessage}"></span>
+        <button class="flash-close" onclick="dismissFlashMessage(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div th:if="${errorMessage}" class="flash-message flash-error" data-message="error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${errorMessage}"></span>
+        <button class="flash-close" onclick="dismissFlashMessage(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
     <div th:insert="~{${viewName}}"></div>
 </main>
 
 <footer>
-    <p>&copy; 2025 Managefolio Admin Panel</p>
+    <p>&copy; 2025 Managefolio Admin Panel | Made with <i class="fas fa-heart" style="color: #ef4444;"></i> for Portfolio Management</p>
 </footer>
+
 </body>
 </html>

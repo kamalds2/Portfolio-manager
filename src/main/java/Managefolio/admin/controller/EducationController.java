@@ -53,7 +53,7 @@ public class EducationController {
 
     // 📝 Save education (create or update)
     @PostMapping("/add")
-    public String saveEducation(@ModelAttribute Education education) {
+    public String saveEducation(@ModelAttribute Education education, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         educationRepository.save(education);
         return "redirect:/admin/education/" + education.getProfile().getId();
     }

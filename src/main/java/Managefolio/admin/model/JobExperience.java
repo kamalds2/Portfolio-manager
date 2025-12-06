@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "tbl_job_experience")
@@ -34,6 +35,7 @@ public class JobExperience {
 
     @ManyToOne
     @JoinColumn(name = "profile_id")
+    @JsonBackReference
     private Profile profile;
 
     @PrePersist

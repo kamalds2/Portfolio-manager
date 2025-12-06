@@ -1,71 +1,98 @@
 <div th:fragment="content">
     <div class="page-header">
-        <h2 th:text="${profile.id != null ? 'Edit Profile' : 'Add New Profile'}">Profile Form</h2>
-        <a th:href="${isAdmin} ? @{/admin/profile} : @{/dashboard}" class="btn btn-secondary">Back</a>
+        <h2 th:text="${profile.id != null ? '✏️ Edit Profile' : '➕ Add New Profile'}">Profile Form</h2>
+        <a th:href="${isAdmin} ? @{/admin/profile} : @{/dashboard}" class="btn btn-secondary">⬅️ Back</a>
     </div>
 
     <form th:action="${profile.id != null} ? @{/admin/profile/edit/{id}(id=${profile.id})} : @{/admin/profile/add}"
-          method="post"
-          th:object="${profile}"
-          class="profile-form">
+        method="post"
+        th:object="${profile}"
+        class="profile-form"
+        enctype="multipart/form-data">
+
+        <!-- Hidden field for profile ID (needed for edit operations) -->
+        <input type="hidden" th:field="*{id}" th:if="${profile.id != null}">
 
         <div class="form-grid">
             <div class="form-group">
-                <label for="fullName">Full Name *</label>
-                <input type="text" id="fullName" th:field="*{fullName}" placeholder="Enter full name" required>
+                <label for="fullName">👤 Full Name *</label>
+                <input type="text" id="fullName" th:field="*{fullName}" placeholder="Enter your full name" required>
             </div>
 
             <div class="form-group">
-                <label for="title">Professional Title</label>
+                <label for="title">💼 Professional Title</label>
                 <input type="text" id="title" th:field="*{title}" placeholder="e.g., Senior Software Engineer">
             </div>
 
             <div class="form-group">
-                <label for="email">Email Address *</label>
+                <label for="email">📧 Email Address *</label>
                 <input type="email" id="email" th:field="*{email}" placeholder="your.email@example.com" required>
             </div>
 
             <div class="form-group">
-                <label for="phone">Phone Number</label>
+                <label for="phone">📱 Phone Number</label>
                 <input type="text" id="phone" th:field="*{phone}" placeholder="+91 98765 43210">
             </div>
 
             <div class="form-group">
-                <label for="location">Location</label>
+                <label for="location">📍 Location</label>
                 <input type="text" id="location" th:field="*{location}" placeholder="City, Country">
             </div>
 
             <div class="form-group full-width">
-                <label for="bio">Professional Bio</label>
-                <textarea id="bio" th:field="*{bio}" placeholder="Write a brief professional summary..." rows="4"></textarea>
+                <label for="bio">📝 Professional Bio</label>
+                <textarea id="bio" th:field="*{bio}" placeholder="Write a brief professional summary that showcases your expertise and experience..." rows="4"></textarea>
             </div>
 
             <div class="form-group">
-                <label for="resumeUrl">Resume/CV URL</label>
+                <label for="resumeUrl">📄 Resume/CV URL</label>
                 <input type="url" id="resumeUrl" th:field="*{resumeUrl}" placeholder="https://example.com/resume.pdf">
+                <small class="form-help">Or upload a resume file below</small>
             </div>
 
             <div class="form-group">
-                <label for="profileImage">Profile Image URL</label>
+                <label for="resumeFile">📤 Upload Resume/CV</label>
+                <input type="file" id="resumeFile" name="resumeFile" accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                <div th:if="${profile.resumeUrl != null}" class="current-file">
+                    <label>Current Resume:</label>
+                    <a th:href="${profile.resumeUrl}" target="_blank" class="btn btn-sm btn-outline-primary" style="margin-top: 0.5rem;">
+                        <i class="fas fa-download"></i> View Current Resume
+                    </a>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="profileImage">🖼️ Profile Image URL</label>
                 <input type="url" id="profileImage" th:field="*{profileImage}" placeholder="https://example.com/profile.jpg">
+                <small class="form-help">Provide a direct link to an image, or upload a file below (choose one method)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="imageFile">📤 Upload Profile Image</label>
+                <input type="file" id="imageFile" name="imageFile" accept="image/*">
+                <small class="form-help">Upload from your device (will override URL above)</small>
+                <div th:if="${profile.profileImage != null}" class="current-image">
+                    <label>Current Profile Image:</label>
+                    <img th:src="${profile.profileImage}" alt="Current profile image" style="max-width: 200px; height: auto; border-radius: 8px; margin-top: 0.5rem;" />
+                </div>
             </div>
         </div>
 
         <!-- ✅ Only show status toggle for admins -->
         <div class="form-group">
-            <label for="status">Profile Status *</label>
+            <label for="status">📊 Profile Status *</label>
             <select id="status" th:field="*{active}" required>
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
+                <option value="true">✅ Active</option>
+                <option value="false">❌ Inactive</option>
             </select>
-            <small class="form-help">Active profiles are visible in your public portfolio</small>
+            <small class="form-help">💡 Active profiles are visible in your public portfolio</small>
         </div>
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">
-                <span th:text="${profile.id != null ? 'Update Profile' : 'Create Profile'}">Save Profile</span>
+                <span th:text="${profile.id != null ? '💾 Update Profile' : '✨ Create Profile'}">Save Profile</span>
             </button>
-            <a th:href="${isAdmin} ? @{/admin/profile} : @{/dashboard}" class="btn btn-secondary">Cancel</a>
+            <a th:href="${isAdmin} ? @{/admin/profile} : @{/dashboard}" class="btn btn-secondary">❌ Cancel</a>
         </div>
     </form>
 </div>

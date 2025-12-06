@@ -11,10 +11,14 @@
     <form th:action="${project.id != null} ? @{/admin/projects/edit/__${project.id}__} : @{/admin/projects/add}"
           method="post"
           th:object="${project}"
-          class="project-form">
+          class="project-form"
+          enctype="multipart/form-data">
 
         <!-- 🔒 Bind profile context -->
         <input type="hidden" th:field="*{profile.id}" />
+        
+        <!-- Hidden field for project ID (needed for edit operations) -->
+        <input type="hidden" th:field="*{id}" th:if="${project.id != null}" />
 
         <div class="form-grid">
             <div class="form-group full-width">
@@ -59,8 +63,35 @@
             </div>
 
             <div class="form-group">
-                <label for="imageUrl">Project Image URL</label>
+                <label for="imageUrl">Single Project Image URL</label>
                 <input type="url" id="imageUrl" th:field="*{imageUrl}" placeholder="https://example.com/project-image.jpg" />
+                <small class="form-help">For single image (legacy field), or upload multiple images below</small>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="projectImages">Upload Project Images (Multiple)</label>
+                <input type="file" id="projectImages" name="projectImages" accept="image/*" multiple />
+                <small class="form-help">You can select multiple images by holding Ctrl/Cmd while clicking</small>
+                
+                <!-- Display existing images -->
+                <div th:if="${project.imageUrls != null and !project.imageUrls.trim().isEmpty()}" class="existing-images">
+                    <label>Current Images:</label>
+                    <div class="image-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
+                        <div th:each="imageUrl : ${project.getImageUrlsList()}" class="image-item">
+                            <img th:src="${imageUrl}" alt="Project image" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px; border: 2px solid var(--border);" />
+                            <div class="image-url" style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.25rem; word-break: break-all;" th:text="${imageUrl}">Image URL</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Show legacy single image if exists but no multiple images -->
+                <div th:if="${project.imageUrl != null and (project.imageUrls == null or project.imageUrls.trim().isEmpty())}" class="legacy-image">
+                    <label>Current Image (Legacy):</label>
+                    <div class="image-item" style="margin-top: 0.5rem;">
+                        <img th:src="${project.imageUrl}" alt="Current project image" style="max-width: 200px; height: auto; border-radius: 8px; border: 2px solid var(--border);" />
+                        <div class="image-url" style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.25rem; word-break: break-all;" th:text="${project.imageUrl}">Image URL</div>
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
