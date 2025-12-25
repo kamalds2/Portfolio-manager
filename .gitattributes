@@ -1,15 +1,25 @@
-# Override GitHub language detection
-*.html linguist-detectable=false
-*.css linguist-detectable=false
-*.js linguist-detectable=false
-
-# Ensure Java files are properly detected
+# Java - Primary language
 *.java linguist-detectable=true
 *.xml linguist-detectable=true
 
-# Mark template files as templates, not main language
+# Spring Boot framework files
+*.properties linguist-language=Properties
+*.yml linguist-language=YAML
+*.yaml linguist-language=YAML
+pom.xml linguist-language=Maven-POM
+
+# Frontend technologies - properly detect
+*.html linguist-detectable=true
+*.css linguist-detectable=true
+*.js linguist-detectable=true
+
+# Template files (Thymeleaf)
 src/main/resources/templates/** linguist-language=HTML
-src/main/resources/static/** linguist-vendored=true
+
+# Static assets
+src/main/resources/static/css/** linguist-language=CSS
+src/main/resources/static/js/** linguist-language=JavaScript
+src/main/resources/static/images/** linguist-vendored=true
 
 # Ignore generated/build files from language stats
 target/** linguist-generated=true
