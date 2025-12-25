@@ -21,3 +21,12 @@ pom.xml linguist-language=Maven POM
 
 # Documentation
 *.md linguist-documentation=true
+
+# Spring Boot specific configurations
+*.properties linguist-language=Properties
+*.yml linguist-language=YAML
+*.yaml linguist-language=YAML
+
+# Security files (exclude from language detection)
+*.p12 linguist-generated=true
+*.jks linguist-generated=true
