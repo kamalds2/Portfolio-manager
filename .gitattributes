@@ -1,0 +1,23 @@
+# Override GitHub language detection
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.js linguist-detectable=false
+
+# Ensure Java files are properly detected
+*.java linguist-detectable=true
+*.xml linguist-detectable=true
+
+# Mark template files as templates, not main language
+src/main/resources/templates/** linguist-language=HTML
+src/main/resources/static/** linguist-vendored=true
+
+# Ignore generated/build files from language stats
+target/** linguist-generated=true
+*.class linguist-generated=true
+
+# Ensure build files are detected
+pom.xml linguist-language=Maven POM
+*.gradle linguist-language=Gradle
+
+# Documentation
+*.md linguist-documentation=true
