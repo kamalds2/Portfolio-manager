@@ -845,3 +845,140 @@ input[type="file"][multiple]:focus {
 .flash-close i {
   font-size: 1rem;
 }
+
+/* =================== PORTFOLIO MANAGEMENT STYLES =================== */
+
+/* Header actions for multiple buttons */
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Statistics cards */
+.stat-card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  font-size: 1.5rem;
+  color: var(--primary);
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.stat-content h3 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.stat-content p {
+  margin: 0;
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+/* Search form styling */
+.search-form .input-group {
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.search-form .form-control {
+  border: none;
+  font-size: 0.9rem;
+}
+
+.search-form .btn {
+  border: none;
+  background: var(--primary);
+  color: white;
+}
+
+.search-form .btn:hover {
+  background: var(--primary-hover);
+}
+
+/* Info groups for view pages */
+.info-group {
+  margin-bottom: 1rem;
+}
+
+.info-group label {
+  font-weight: 600;
+  color: var(--text-light);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.info-group p {
+  margin: 0;
+  color: var(--text-dark);
+  font-size: 1rem;
+}
+
+.info-group code {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+/* Card improvements */
+.card-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.card-tools {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .stat-card {
+    text-align: center;
+    flex-direction: column;
+  }
+  
+  .stat-icon {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+}

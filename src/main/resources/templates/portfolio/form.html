@@ -1,0 +1,50 @@
+<div th:fragment="content">
+    <div class="page-header">
+        <h2 th:text="${portfolio.id != null} ? '✏️ Edit Portfolio' : '➕ Add New Portfolio'">Portfolio Form</h2>
+        <a th:href="${isAdmin} ? @{/admin/portfolio/list} : @{/dashboard}" class="btn btn-secondary">⬅️ Back</a>
+    </div>
+
+    <form th:action="@{/admin/portfolio/save}" method="post" th:object="${portfolio}" class="portfolio-form">
+
+        <input type="hidden" th:field="*{id}" th:if="${portfolio.id != null}">
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="portfolioName">👤 Portfolio Name *</label>
+                <input type="text" id="portfolioName" th:field="*{portfolioName}" placeholder="Enter portfolio name" required class="form-control" />
+                <div class="text-danger" th:if="${#fields.hasErrors('portfolioName')}" th:errors="*{portfolioName}"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="portfolioCode">🔖 Code *</label>
+                <input type="text" id="portfolioCode" th:field="*{portfolioCode}" placeholder="Unique code (max 10 chars)" required class="form-control" />
+                <div class="text-danger" th:if="${#fields.hasErrors('portfolioCode')}" th:errors="*{portfolioCode}"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="portfolioLink">🔗 Link</label>
+                <input type="url" id="portfolioLink" th:field="*{portfolioLink}" placeholder="https://example.com/your-work" class="form-control" />
+            </div>
+
+            <div class="form-group full-width">
+                <label for="description">📝 Description</label>
+                <textarea id="description" th:field="*{description}" placeholder="Short description of this portfolio" rows="4" class="form-control"></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="status">📊 Status</label>
+            <select id="status" th:field="*{active}" class="form-control">
+                <option th:value="true" th:text="'✅ Active'"></option>
+                <option th:value="false" th:text="'❌ Inactive'"></option>
+            </select>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <span th:text="${portfolio.id != null} ? '💾 Update Portfolio' : '✨ Create Portfolio'">Save</span>
+            </button>
+            <a th:href="${isAdmin} ? @{/admin/portfolio/list} : @{/dashboard}" class="btn btn-secondary">❌ Cancel</a>
+        </div>
+    </form>
+</div>

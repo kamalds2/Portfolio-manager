@@ -12,6 +12,7 @@ C:\Project\admin\src\main\java\Managefolio\admin\controller\EducationController.
 C:\Project\admin\src\main\java\Managefolio\admin\controller\GlobalViewAttributes.java
 C:\Project\admin\src\main\java\Managefolio\admin\controller\JobExperienceController.java
 C:\Project\admin\src\main\java\Managefolio\admin\controller\PasswordDebugController.java
+C:\Project\admin\src\main\java\Managefolio\admin\controller\PortfolioController.java
 C:\Project\admin\src\main\java\Managefolio\admin\controller\PortfolioProfile.java
 C:\Project\admin\src\main\java\Managefolio\admin\controller\ProfileController.java
 C:\Project\admin\src\main\java\Managefolio\admin\controller\ProjectController.java
@@ -23,6 +24,7 @@ C:\Project\admin\src\main\java\Managefolio\admin\controller\UserAdminController.
 C:\Project\admin\src\main\java\Managefolio\admin\model\About.java
 C:\Project\admin\src\main\java\Managefolio\admin\model\Education.java
 C:\Project\admin\src\main\java\Managefolio\admin\model\JobExperience.java
+C:\Project\admin\src\main\java\Managefolio\admin\model\Portfolio.java
 C:\Project\admin\src\main\java\Managefolio\admin\model\Profile.java
 C:\Project\admin\src\main\java\Managefolio\admin\model\Projects.java
 C:\Project\admin\src\main\java\Managefolio\admin\model\Skill.java
@@ -30,11 +32,13 @@ C:\Project\admin\src\main\java\Managefolio\admin\model\User.java
 C:\Project\admin\src\main\java\Managefolio\admin\repository\AboutRepository.java
 C:\Project\admin\src\main\java\Managefolio\admin\repository\EducationRepository.java
 C:\Project\admin\src\main\java\Managefolio\admin\repository\JobExperienceRepository.java
+C:\Project\admin\src\main\java\Managefolio\admin\repository\PortfolioRepository.java
 C:\Project\admin\src\main\java\Managefolio\admin\repository\ProfileRepository.java
 C:\Project\admin\src\main\java\Managefolio\admin\repository\ProjectRepository.java
 C:\Project\admin\src\main\java\Managefolio\admin\repository\SkillRepository.java
 C:\Project\admin\src\main\java\Managefolio\admin\repository\UserRepository.java
 C:\Project\admin\src\main\java\Managefolio\admin\services\CustomUserDetailsService.java
+C:\Project\admin\src\main\java\Managefolio\admin\services\PortfolioService.java
 C:\Project\admin\src\main\java\Managefolio\admin\services\SkillService.java
 C:\Project\admin\src\main\java\Managefolio\admin\services\SkillServiceImpl.java
 C:\Project\admin\src\main\java\Managefolio\admin\services\UploadService.java

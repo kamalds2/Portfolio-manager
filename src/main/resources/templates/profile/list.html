@@ -2,9 +2,15 @@
     <div class="container">
         <div class="page-header">
             <h1 class="page-title">Manage Profiles</h1>
-            <a th:href="@{/admin/profile/new}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Add New Profile
-            </a>
+            <div class="header-actions">
+                <a th:href="@{/admin/portfolio/list}" class="btn btn-success">
+                    <i class="fas fa-briefcase"></i> Manage Portfolios
+                </a>
+               
+                <a th:href="@{/admin/profile/new}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add New Profile
+                </a>
+            </div>
         </div>
 
         <div class="table-container">
@@ -15,7 +21,7 @@
                         <th>Title</th>
                         <th>Email</th>
                         <th>Status</th>
-                        <th>Actions</th>
+                        <th style="text-align: center;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>

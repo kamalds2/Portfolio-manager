@@ -1,0 +1,65 @@
+<div th:fragment="content">
+    <div class="page-header">
+        <h2>Manage Portfolios</h2>
+        <a th:href="@{/admin/portfolio/new}" class="btn btn-primary">Add New Portfolio</a>
+    </div>
+    
+    <div class="table-container">
+        <table class="table datatable">
+            <thead>
+                <tr>
+                    <th>Portfolio Name</th>
+                    <th>Code</th>
+                    <th>Link</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="portfolio : ${portfolios}">
+                    <td>
+                        <strong th:text="${portfolio.portfolioName}">Portfolio Name</strong>
+                        <div th:if="${portfolio.description != null and !portfolio.description.isEmpty()}" 
+                             class="text-muted small" th:text="${portfolio.description}">Description</div>
+                    </td>
+                    <td>
+                        <code th:text="${portfolio.portfolioCode}">CODE</code>
+                    </td>
+                    <td>
+                        <a th:href="${portfolio.portfolioLink}" target="_blank" class="btn btn-primary">
+                            🔗 Open Portfolio
+                        </a>
+                    </td>
+                    <td>
+                        <span th:if="${portfolio.active}" class="badge badge-success">Active</span>
+                        <span th:unless="${portfolio.active}" class="badge badge-danger">Inactive</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a th:href="@{'/admin/portfolio/edit/' + ${portfolio.id}}" 
+                               class="btn btn-sm btn-secondary" title="Edit Portfolio">
+                                ✏️
+                            </a>
+                            <a th:href="@{'/admin/portfolio/delete/' + ${portfolio.id}}"
+                               class="btn btn-sm btn-outline-danger" title="Delete Portfolio"
+                               onclick="return confirm('Are you sure you want to delete this portfolio?')">
+                                🗑️
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${portfolios.empty}">
+                    <td colspan="5" class="text-center">
+                        <div style="padding: 2rem;">
+                            <h3>No portfolios found</h3>
+                            <p>Get started by creating your first portfolio!</p>
+                            <a th:href="@{/admin/portfolio/new}" class="btn btn-primary">Create Portfolio</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+        </table>
+    </div>
+</div>

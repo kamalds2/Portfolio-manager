@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .requestMatchers("/admin/users/**", "/admin/profile", "/admin/profile/view/**", "/admin/profile/delete/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/dashboard", "/admin/dashboard", "/admin/profile/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                 .requestMatchers("/admin/skills/**", "/admin/projects/**", "/admin/education/**", "/admin/jobs/**", "/admin/about/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                .requestMatchers("/admin/portfolio/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                 .requestMatchers(HttpMethod.GET, "/portfolio/**").permitAll()
                 .requestMatchers("/portfolio/profiles/**/upload-image", "/portfolio/profiles/**/upload-resume").authenticated()
                 .anyRequest().authenticated()
