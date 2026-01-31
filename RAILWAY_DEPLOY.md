@@ -21,17 +21,23 @@ This opens your browser - sign up with GitHub (recommended)
 
 ### Step 3: Deploy Your Project
 
+**⚠️ CLI Issue Fix: Use Web Dashboard Instead**
+
+The Railway CLI has changed. Instead of using CLI, use the web dashboard:
+
+1. **Go to**: https://railway.com/project/b4b0ba4f-f842-494b-9944-13016f4e3366
+2. **Add New Service** → **GitHub Repo** → Connect your repository
+3. **Wait for build** to complete
+4. **Add Database**: New Service → Database → MySQL
+5. **Verify**: Check logs and live URL
+
+**If you want to continue with CLI:**
 ```cmd
-cd C:\Project\admin
+# Create app service (not database)
+railway up --service app
 
-# Initialize Railway project
-railway init
-
-# Add MySQL database
-railway add mysql
-
-# Deploy your application
-railway up
+# Add database through dashboard only
+# CLI database commands are deprecated
 ```
 
 ### Step 4: Set Environment Variables (Auto-configured)
@@ -49,15 +55,16 @@ After deployment, Railway provides:
 
 ## 📋 Manual Deployment Steps
 
-If CLI doesn't work, use Railway Dashboard:
+**Recommended approach:**
 
 1. **Go to**: https://railway.app
 2. **Sign up** with GitHub
 3. **Create New Project** → **Deploy from GitHub**
 4. **Connect Repository**: Select your portfolio repo
-5. **Add MySQL**: Click "Add Service" → "Database" → "MySQL"
-6. **Environment Variables**: Auto-configured
-7. **Deploy**: Automatic on git push
+5. **Wait for first deployment** to complete
+6. **Add MySQL**: In project dashboard → "New Service" → "Database" → "MySQL"
+7. **Environment Variables**: Auto-configured by Railway
+8. **Redeploy**: Your app will restart with database connection
 
 ## 🔧 Configuration Details
 
