@@ -12,9 +12,6 @@ import Managefolio.admin.config.TestSecurityConfig;
 @Import(TestSecurityConfig.class)
 @TestPropertySource(properties = {
     "spring.jpa.hibernate.ddl-auto=create",
-    "spring.datasource.url=jdbc:mysql://localhost:3306/portfolio_test",
-    "spring.datasource.username=root",
-    "spring.datasource.password=testpass",
     "spring.jpa.defer-datasource-initialization=true",
     "logging.level.org.hibernate.SQL=ERROR",
     "logging.level.org.springframework.security=ERROR"
