@@ -1,5 +1,6 @@
 # Multi-stage build for Spring Boot application
-FROM openjdk:17-jdk-slim AS builder
+FROM eclipse-temurin:17-jdk AS builder
+
 
 # Install Maven
 RUN apt-get update && apt-get install -y maven
@@ -18,7 +19,7 @@ COPY src src
 RUN mvn clean package -DskipTests
 
 # Production stage
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
@@ -43,7 +44,7 @@ EXPOSE 8080
 
 # Environment variables for better container management
 ENV JAVA_OPTS="-Xms512m -Xmx1024m"
-ENV SPRING_PROFILES_ACTIVE=prod
+ENV SPRING_PROFILES_ACTIVE=railway
 
 # Run the application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar --spring.profiles.active=$SPRING_PROFILES_ACTIVE --server.port=$PORT"]
