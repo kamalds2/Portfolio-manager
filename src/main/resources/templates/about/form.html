@@ -1,14 +1,20 @@
 <div th:fragment="content">
     <div class="page-header">
+        
         <h2>
             <span th:text="${about.id != null ? 'Edit About Section' : 'Add About Section'}">About Form</span>
             for <strong th:text="${activeProfile.fullName}">Profile Name</strong>
             (<span th:text="${activeProfile.title}">Role</span>)
         </h2>
-        <a th:href="@{'/admin/about/' + ${about.profile.id}}" class="btn btn-secondary">Back to About</a>
+        
+     <div class="manage-areas">
+        <a th:href="@{'/admin/about/' + ${activeProfile.id} + '/areas'}" class="btn btn-outline-primary">Manage Areas of Expertise</a>
     </div>
+    </div>
+    
 
     <form th:action="@{/admin/about/save}" method="post" th:object="${about}" class="profile-form">
+        <input type="hidden" th:field="*{id}" />
         <input type="hidden" th:field="*{profile.id}" />
 
         <div class="form-grid">
@@ -27,4 +33,5 @@
             <a th:href="@{'/admin/about/' + ${about.profile.id}}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
+   
 </div>

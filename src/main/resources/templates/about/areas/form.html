@@ -1,0 +1,95 @@
+<div th:fragment="content">
+    <div class="page-header">
+        <h2 th:text="${area.id != null ? 'Edit Area Of Expertise ' : 'Add Area Expertise'}">Area Form</h2>
+        <a th:href="@{'/admin/about/' + ${activeProfile.id} + '/areas'}" class="btn btn-secondary">Back to Areas</a>
+    </div>
+
+    <form th:action="@{'/admin/about/' + ${activeProfile.id} + '/areas/save'}" method="post" th:object="${area}" class="profile-form">
+        <input type="hidden" th:field="*{profile.id}" />
+        <div class="form-group">
+            <label for="name">Area Name *</label>
+            <input id="name" type="text" th:field="*{name}" placeholder="e.g. Frontend Development" required />
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" th:field="*{description}" rows="5" placeholder="Describe this area"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="skillInput">Skills (add by typing and pressing Enter — max 8)</label>
+            <div id="skillsField" class="skills-field">
+                <ul id="skillsList" class="skills-list">
+                    <!-- existing skills will be rendered by JS initializer -->
+                </ul>
+                <input id="skillInput" type="text" class="skill-input" placeholder="Type a skill and press Enter" autocomplete="off" />
+            </div>
+            <input type="hidden" id="skillsText" name="skillsText" th:value="${area.skillsList != null and !area.skillsList.isEmpty()} ? ${#strings.listJoin(area.skillsList, '&#10;')} : ''" />
+            <small class="form-help">Add up to 8 skills. Press Enter to add; click × to remove.</small>
+        </div>
+
+      
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" th:text="${area.id != null ? 'Update Area' : 'Save Area'}">Save</button>
+            <a th:href="@{'/admin/about/' + ${activeProfile.id} + '/areas'}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+            <script th:inline="javascript">
+        /*<![CDATA[*/
+        (function(){
+            const maxSkills = 8;
+            const skillsList = document.getElementById('skillsList');
+            const skillInput = document.getElementById('skillInput');
+            const skillsText = document.getElementById('skillsText');
+
+            // initialize skills from hidden input (newline separated)
+            let skills = [];
+            if(skillsText && skillsText.value && skillsText.value.trim().length){
+                skills = skillsText.value.split(/\r?\n/).map(s=>s.trim()).filter(s=>s.length>0);
+            }
+
+            function render(){
+                skillsList.innerHTML = '';
+                skills.forEach((s, i) => {
+                    const li = document.createElement('li');
+                    li.className = 'skill-tag';
+                    const span = document.createElement('span');
+                    span.textContent = s;
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'skill-remove';
+                    btn.setAttribute('aria-label','Remove skill');
+                    btn.textContent = '×';
+                    btn.addEventListener('click', function(){ skills.splice(i,1); render(); });
+                    li.appendChild(span);
+                    li.appendChild(btn);
+                    skillsList.appendChild(li);
+                });
+                if(skillsText) skillsText.value = skills.join('\n');
+                // disable input if reached max
+                if(skills.length >= maxSkills){ skillInput.disabled = true; skillInput.placeholder = 'Skill limit reached'; }
+                else { skillInput.disabled = false; skillInput.placeholder = 'Type a skill and press Enter'; }
+            }
+
+            skillInput.addEventListener('keydown', function(e){
+                if(e.key === 'Enter'){
+                    e.preventDefault();
+                    const val = skillInput.value.trim();
+                    if(!val) return;
+                    // avoid duplicates
+                    if(skills.indexOf(val) !== -1){ skillInput.value = ''; return; }
+                    if(skills.length < maxSkills){ skills.push(val); skillInput.value = ''; render(); }
+                } else if(e.key === 'Backspace' && skillInput.value === ''){
+                    // remove last
+                    skills.pop(); render();
+                }
+            });
+
+
+            // initialize on DOM ready
+            document.addEventListener('DOMContentLoaded', function(){ render(); });
+        })();
+        /*]]>*/
+        </script>

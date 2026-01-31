@@ -84,4 +84,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 		@JsonManagedReference
 		@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 		private List<About> aboutSections;
+
+		@JsonManagedReference
+		@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+		private List<AreaOfExpertise> areas;
 	}

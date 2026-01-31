@@ -6,6 +6,7 @@ C:\Project\admin\src\main\java\Managefolio\admin\config\SessionInterceptor.java
 C:\Project\admin\src\main\java\Managefolio\admin\config\StartupUserLoader.java
 C:\Project\admin\src\main\java\Managefolio\admin\config\WebMvcConfig.java
 C:\Project\admin\src\main\java\Managefolio\admin\controller\AboutController.java
+C:\Project\admin\src\main\java\Managefolio\admin\controller\AreaController.java
 C:\Project\admin\src\main\java\Managefolio\admin\controller\AuthController.java
 C:\Project\admin\src\main\java\Managefolio\admin\controller\DashboardController.java
 C:\Project\admin\src\main\java\Managefolio\admin\controller\EducationController.java
@@ -22,6 +23,7 @@ C:\Project\admin\src\main\java\Managefolio\admin\controller\SkillController.java
 C:\Project\admin\src\main\java\Managefolio\admin\controller\UploadController.java
 C:\Project\admin\src\main\java\Managefolio\admin\controller\UserAdminController.java
 C:\Project\admin\src\main\java\Managefolio\admin\model\About.java
+C:\Project\admin\src\main\java\Managefolio\admin\model\AreaOfExpertise.java
 C:\Project\admin\src\main\java\Managefolio\admin\model\Education.java
 C:\Project\admin\src\main\java\Managefolio\admin\model\JobExperience.java
 C:\Project\admin\src\main\java\Managefolio\admin\model\Portfolio.java
@@ -30,6 +32,7 @@ C:\Project\admin\src\main\java\Managefolio\admin\model\Projects.java
 C:\Project\admin\src\main\java\Managefolio\admin\model\Skill.java
 C:\Project\admin\src\main\java\Managefolio\admin\model\User.java
 C:\Project\admin\src\main\java\Managefolio\admin\repository\AboutRepository.java
+C:\Project\admin\src\main\java\Managefolio\admin\repository\AreaRepository.java
 C:\Project\admin\src\main\java\Managefolio\admin\repository\EducationRepository.java
 C:\Project\admin\src\main\java\Managefolio\admin\repository\JobExperienceRepository.java
 C:\Project\admin\src\main\java\Managefolio\admin\repository\PortfolioRepository.java

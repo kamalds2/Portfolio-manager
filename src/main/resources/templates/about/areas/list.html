@@ -1,0 +1,49 @@
+<div th:fragment="content">
+    <div class="page-header">
+        <h2>Areas of Expertise for <span th:text="${activeProfile.fullName}">Profile</span></h2>
+        <div class="page-actions">
+            <a th:href="@{'/admin/about/' + ${activeProfile.id} }" class="btn btn-secondary">Back to About</a>
+            <a th:href="@{'/admin/about/' + ${activeProfile.id} + '/areas/new'}" class="btn btn-primary">Add Area</a>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="areas-table datatable">
+            <thead>
+                <tr>
+                    <th>Area Name</th>
+                    <th>Description</th>
+                    
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="area : ${areas}">
+                    <td><strong th:text="${area.name}">Area name</strong></td>
+                    <td th:text="${area.description}">Description</td>
+                   
+                    <td class="actions">
+                        <a th:href="@{'/admin/about/' + ${activeProfile.id} + '/areas/' + ${area.id} + '/edit'}" class="btn-edit" title="Edit">
+                            <span class="icon">
+                                <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M3 14.25V17h2.75l8.09-8.09-2.75-2.75L3 14.25zM17.71 6.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" fill="#2196f3"/></svg>
+                            </span>
+                        </a>
+                        <form th:action="@{'/admin/about/' + ${activeProfile.id} + '/areas/' + ${area.id} + '/delete'}" method="post" style="display:inline">
+                            <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to delete this area of expertise?')" title="Delete">
+                                <span class="icon">
+                                    <svg width="17" height="17" viewBox="0 0 20 20" fill="none"><path d="M6 7v7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V7" stroke="#e74c3c" stroke-width="2"/><path d="M4 7h12" stroke="#e74c3c" stroke-width="2"/><path d="M9 10v3" stroke="#e74c3c" stroke-width="2"/><path d="M11 10v3" stroke="#e74c3c" stroke-width="2"/><rect x="6" y="4" width="8" height="2" rx="1" fill="#e74c3c"/></svg>
+                                </span>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${areas.empty}">
+                    <td colspan="4" class="no-data">
+                        No areas of expertise found for this profile.
+                        <a th:href="@{'/admin/about/' + ${activeProfile.id} + '/areas/new'}">Add your first area of expertise</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

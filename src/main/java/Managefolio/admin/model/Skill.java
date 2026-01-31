@@ -27,14 +27,14 @@ public class Skill {
 
 	    private String name;
 
-	    @Enumerated(EnumType.STRING)
-	    @Column(nullable = false)
-	    private SkillLevel level;
+		@Enumerated(EnumType.STRING)
+		@Column(nullable = false)
+	private SkillLevel level;
 
-	    @ManyToOne(fetch = FetchType.LAZY)
-	    @JoinColumn(name = "profile_id", nullable = false)
-		@JsonBackReference
-		private Profile profile;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "profile_id", nullable = false)
+	@JsonBackReference
+	private Profile profile;
 
-	    
+		    
 	}
