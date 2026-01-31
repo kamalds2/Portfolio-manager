@@ -94,6 +94,8 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    continue-on-error: true
+
 
     steps:
     - name: Deploy to production
