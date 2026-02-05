@@ -27,8 +27,8 @@ WORKDIR /app
 RUN addgroup --system spring && adduser --system spring --ingroup spring
 USER spring:spring
 
-# Copy the built jar from builder stage
-COPY --from=builder /app/target/admin-*.jar app.jar
+# Copy the built jar from builder stage (more explicit pattern)
+COPY --from=builder /app/target/admin-0.0.1-SNAPSHOT.jar app.jar
 
 # Create uploads directory with proper permissions
 USER root
