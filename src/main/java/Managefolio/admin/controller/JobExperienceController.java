@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Collections;
 
 @Controller
 @RequestMapping("/admin/jobs")
@@ -32,11 +33,13 @@ public class JobExperienceController {
         Profile profile = profileRepository.findById(profileId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid profile ID: " + profileId));
         List<JobExperience> jobs = jobRepository.findByProfileId(profileId);
+        if (jobs == null) jobs = Collections.emptyList();
 
         boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
         model.addAttribute("isAdmin", isAdmin);
 
         model.addAttribute("jobs", jobs);
+        model.addAttribute("hasJobs", !jobs.isEmpty());
         model.addAttribute("activeProfile", profile);
         model.addAttribute("viewName", "jobs/list");
         return "layout/base";

@@ -44,15 +44,34 @@ public class UploadService {
     }
 
     public String storeResume(Long profileId, MultipartFile file) throws IOException {
+        // Delegate to new variant with empty name (will use UUID-based name)
+        return storeResume(profileId, file, null);
+    }
+
+    /**
+     * Store resume using a filename that starts with 'resume_' and includes the provided name (sanitized).
+     * If name is null or empty, falls back to UUID.
+     */
+    public String storeResume(Long profileId, MultipartFile file, String name) throws IOException {
         if (file == null || file.isEmpty()) throw new IllegalArgumentException("File is empty");
         if (file.getSize() > MAX_RESUME_SIZE) throw new IllegalArgumentException("Resume too large");
         String contentType = file.getContentType();
         if (contentType == null || !ALLOWED_RESUME_TYPES.contains(contentType)) throw new IllegalArgumentException("Unsupported resume type");
 
-    String original = file.getOriginalFilename();
-    String cleaned = StringUtils.cleanPath(original == null ? "" : original);
-    String ext = getExtension(cleaned);
-    String filename = UUID.randomUUID().toString() + (ext.isEmpty() ? "" : "." + ext);
+        String original = file.getOriginalFilename();
+        String cleaned = StringUtils.cleanPath(original == null ? "" : original);
+        String ext = getExtension(cleaned);
+
+        String base;
+        if (name != null && !name.isBlank()) {
+            base = sanitizeName(name);
+        } else {
+            // if no name provided, try to use original filename (without extension) or UUID
+            String origBase = cleaned.isEmpty() ? "" : cleaned.replaceAll("\\.[^.]+$", "");
+            base = origBase.isBlank() ? UUID.randomUUID().toString() : sanitizeName(origBase);
+        }
+
+        String filename = "resume_" + base + "_" + UUID.randomUUID().toString() + (ext.isEmpty() ? "" : "." + ext);
 
         Path uploadDir = Path.of("uploads", "resumes", String.valueOf(profileId));
         Files.createDirectories(uploadDir);
@@ -60,6 +79,16 @@ public class UploadService {
         Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
 
         return "/uploads/resumes/" + profileId + "/" + filename;
+    }
+
+    private String sanitizeName(String input) {
+        if (input == null) return "";
+        // Trim, replace whitespace and disallowed chars with underscore, collapse multiple underscores
+        String s = input.trim().replaceAll("\\s+", "_");
+        s = s.replaceAll("[^A-Za-z0-9_\\-]", "_");
+        s = s.replaceAll("_+", "_");
+        if (s.length() > 100) s = s.substring(0, 100);
+        return s.toLowerCase();
     }
 
     public String storeProjectImage(Long projectId, MultipartFile file) throws IOException {

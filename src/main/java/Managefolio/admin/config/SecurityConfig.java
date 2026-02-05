@@ -33,14 +33,14 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
                 .requestMatchers("/login", "/forgot-password", "/uploads/**").permitAll()
-                .requestMatchers("/api/**").permitAll()
                 .requestMatchers("/api/keepalive").authenticated()
-                .requestMatchers("/admin/users/**", "/admin/profile", "/admin/profile/view/**", "/admin/profile/delete/**").hasAuthority("ROLE_ADMIN")
+                .requestMatchers("/api/**").permitAll()
+                .requestMatchers("/admin/users/**", "/admin/profile/view/**", "/admin/profile/delete/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/dashboard", "/admin/dashboard", "/admin/profile/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                 .requestMatchers("/admin/skills/**", "/admin/projects/**", "/admin/education/**", "/admin/jobs/**", "/admin/about/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                 .requestMatchers("/admin/portfolio/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                 .requestMatchers(HttpMethod.GET, "/portfolio/**").permitAll()
-                .requestMatchers("/portfolio/profiles/**/upload-image", "/portfolio/profiles/**/upload-resume").authenticated()
+                .requestMatchers("/portfolio/profiles/*/upload-image", "/portfolio/profiles/*/upload-resume").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

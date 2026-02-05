@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.io.IOException;
 
 import Managefolio.admin.services.UploadService;
@@ -24,6 +25,14 @@ public class ProfileController {
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final UploadService uploadService;
+
+    private static final long MAX_ALLOWED_FILE_SIZE = 10 * 1024 * 1024; // 5MB
+    private static final List<String> ALLOWED_IMAGE_TYPES = List.of("image/png", "image/jpeg", "image/jpg", "image/gif");
+    private static final List<String> ALLOWED_RESUME_TYPES = List.of(
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    );
 
     @Autowired
     public ProfileController(ProfileRepository profileRepository, UserRepository userRepository, UploadService uploadService) {
@@ -115,6 +124,32 @@ public class ProfileController {
             profile.setUser(user);
         }
 
+        List<String> validationErrors = new ArrayList<>();
+        boolean skipImageUpload = false;
+        boolean skipResumeUpload = false;
+
+        // Validate image file (if provided)
+        if (imageFile != null && !imageFile.isEmpty()) {
+            if (imageFile.getSize() > MAX_ALLOWED_FILE_SIZE) {
+                validationErrors.add("Profile image exceeds maximum size of 5MB.");
+                skipImageUpload = true;
+            } else if (imageFile.getContentType() == null || !ALLOWED_IMAGE_TYPES.contains(imageFile.getContentType().toLowerCase())) {
+                validationErrors.add("Profile image must be PNG, JPG or GIF.");
+                skipImageUpload = true;
+            }
+        }
+
+        // Validate resume file (if provided)
+        if (resumeFile != null && !resumeFile.isEmpty()) {
+            if (resumeFile.getSize() > MAX_ALLOWED_FILE_SIZE) {
+                validationErrors.add("Resume file exceeds maximum size of 10MB.");
+                skipResumeUpload = true;
+            } else if (resumeFile.getContentType() == null || !ALLOWED_RESUME_TYPES.contains(resumeFile.getContentType().toLowerCase())) {
+                validationErrors.add("Resume must be PDF, DOC or DOCX.");
+                skipResumeUpload = true;
+            }
+        }
+
         // ✅ Enforce one profile per user (only for new profiles)
         if (profile.getId() == null) {
             // Creating new profile - check if user already has one
@@ -133,23 +168,41 @@ public class ProfileController {
         // Save profile first to get the ID for file uploads
         Profile savedProfile = profileRepository.save(profile);
 
-        // Handle uploaded files (if present) - use the saved profile's ID
+        // Handle uploaded files (if present and validated) - use the saved profile's ID
+        List<String> uploadErrors = new ArrayList<>();
         try {
-            if (imageFile != null && !imageFile.isEmpty()) {
-                String imagePath = uploadService.storeProfileImage(savedProfile.getId(), imageFile);
-                savedProfile.setProfileImage(imagePath);
-                profileRepository.save(savedProfile); // Update with image path
+            if (imageFile != null && !imageFile.isEmpty() && !skipImageUpload) {
+                try {
+                    String imagePath = uploadService.storeProfileImage(savedProfile.getId(), imageFile);
+                    savedProfile.setProfileImage(imagePath);
+                    profileRepository.save(savedProfile); // Update with image path
+                } catch (Exception e) {
+                    uploadErrors.add("Failed to save profile image: " + e.getMessage());
+                }
             }
-            if (resumeFile != null && !resumeFile.isEmpty()) {
-                String resumePath = uploadService.storeResume(savedProfile.getId(), resumeFile);
-                savedProfile.setResumeUrl(resumePath);
-                profileRepository.save(savedProfile); // Update with resume path
+
+            if (resumeFile != null && !resumeFile.isEmpty() && !skipResumeUpload) {
+                try {
+                    String resumeNameSource = savedProfile.getFullName() != null ? savedProfile.getFullName() : savedProfile.getId().toString();
+                    String resumePath = uploadService.storeResume(savedProfile.getId(), resumeFile, resumeNameSource);
+                    savedProfile.setResumeUrl(resumePath);
+                    profileRepository.save(savedProfile); // Update with resume path
+                } catch (Exception e) {
+                    uploadErrors.add("Failed to save resume file: " + e.getMessage());
+                }
             }
         } catch (Exception e) {
-            // If upload failed, log error and continue (profile saved without files)
+            // This block is a fallback; individual upload exceptions handled above
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("errorMessage", "Profile saved but file upload failed: " + e.getMessage());
-            return "redirect:/dashboard";
+            uploadErrors.add("Unexpected error during file upload: " + e.getMessage());
+        }
+
+        // Combine validation and upload errors for user feedback
+        List<String> allErrors = new ArrayList<>();
+        allErrors.addAll(validationErrors);
+        allErrors.addAll(uploadErrors);
+        if (!allErrors.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", String.join(" \n", allErrors));
         }
         
         boolean isNewProfile = profile.getId() == null;

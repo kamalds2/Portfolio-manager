@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Collections;
 @Controller
 @RequestMapping("/admin/projects")
 public class ProjectController {
@@ -59,12 +60,14 @@ public class ProjectController {
         Profile profile = profileRepository.findById(profileId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid profile ID: " + profileId));
         List<Projects> projects = projectRepository.findByProfileId(profileId);
+        if (projects == null) projects = Collections.emptyList();
 
         boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
         model.addAttribute("isAdmin", isAdmin);
         addUserProfileForNavigation(model, authentication, isAdmin);
 
         model.addAttribute("projects", projects);
+        model.addAttribute("hasProjects", !projects.isEmpty());
         model.addAttribute("activeProfile", profile);
         model.addAttribute("viewName", "projects/list");
         return "layout/base";
@@ -121,6 +124,8 @@ public class ProjectController {
                              @RequestParam(name = "projectImages", required = false) MultipartFile[] projectImages,
                              org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         
+        boolean isNew = project.getId() == null;
+        
         // Save project first to get ID for file uploads
         Projects savedProject = projectRepository.save(project);
         
@@ -153,7 +158,6 @@ public class ProjectController {
             }
         }
         
-        boolean isNew = project.getId() == null;
         redirectAttributes.addFlashAttribute("successMessage", 
             isNew ? "Project added successfully!" : "Project updated successfully!");
         

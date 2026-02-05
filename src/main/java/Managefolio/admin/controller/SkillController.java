@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Collections;
 
 
 @Controller
@@ -52,7 +53,10 @@ public class SkillController {
 	        model.addAttribute("isAdmin", isAdmin);
 	        addUserProfileForNavigation(model, authentication, isAdmin);
 	
-	        model.addAttribute("skills", skillRepository.findByProfileId(profileId));
+            List<Skill> skills = skillRepository.findByProfileId(profileId);
+            if (skills == null) skills = Collections.emptyList();
+            model.addAttribute("skills", skills);
+            model.addAttribute("hasSkills", !skills.isEmpty());
 	        model.addAttribute("activeProfile", profile);
 	        model.addAttribute("viewName", "skill/list");
 	        return "layout/base";
@@ -78,7 +82,10 @@ public class SkillController {
 
     @PostMapping("/add")
     public String saveSkill(@ModelAttribute Skill skill, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        boolean isNew = skill.getId() == null;
         skillRepository.save(skill);
+        redirectAttributes.addFlashAttribute("successMessage", 
+            isNew ? "Skill added successfully!" : "Skill updated successfully!");
         return "redirect:/admin/skills/" + skill.getProfile().getId();
     }
 
@@ -99,12 +106,13 @@ public class SkillController {
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteSkill(@PathVariable Long id) {
+    public String deleteSkill(@PathVariable Long id, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         Skill skill = skillRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Invalid skill ID: " + id));
         Long profileId = skill.getProfile().getId();
 
         skillRepository.deleteById(id);
+        redirectAttributes.addFlashAttribute("successMessage", "Skill deleted successfully!");
         return "redirect:/admin/skills/" + profileId;
     }
 }

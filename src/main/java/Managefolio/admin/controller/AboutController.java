@@ -54,7 +54,10 @@ public class AboutController {
     // 📝 Save or update About section
     @PostMapping("/save")
     public String saveAbout(@ModelAttribute About about, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        boolean isNew = about.getId() == null;
         aboutRepository.save(about);
+        redirectAttributes.addFlashAttribute("successMessage", 
+            isNew ? "About section added successfully!" : "About section updated successfully!");
         return "redirect:/admin/about/" + about.getProfile().getId(); // ✅ Stay in profile context
     }
 }

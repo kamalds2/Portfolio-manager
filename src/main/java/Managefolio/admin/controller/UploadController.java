@@ -37,8 +37,11 @@ public class UploadController {
         }
         Profile profile = opt.get();
 
-        try {
-            String publicPath = uploadService.storeProfileImage(id, file);
+            try {
+                String resumeOwnerName = "";
+                Optional<Managefolio.admin.model.Profile> pf = profileRepository.findById(id);
+                if (pf.isPresent() && pf.get().getFullName() != null) resumeOwnerName = pf.get().getFullName();
+                String publicPath = uploadService.storeProfileImage(id, file);
             profile.setProfileImage(publicPath);
             profileRepository.save(profile);
             return ResponseEntity.ok(profile);
@@ -59,8 +62,11 @@ public class UploadController {
         }
         Profile profile = opt.get();
 
-        try {
-            String publicPath = uploadService.storeResume(id, file);
+            try {
+                String resumeOwnerName = "";
+                Optional<Managefolio.admin.model.Profile> pf = profileRepository.findById(id);
+                if (pf.isPresent() && pf.get().getFullName() != null) resumeOwnerName = pf.get().getFullName();
+                String publicPath = uploadService.storeResume(id, file, resumeOwnerName);
             profile.setResumeUrl(publicPath);
             profileRepository.save(profile);
             return ResponseEntity.ok(profile);

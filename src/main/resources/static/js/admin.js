@@ -30,6 +30,22 @@ function dismissFlashMessage(button) {
     });
 }
 
+// Capture native alerts and render them via our modal (queue if modal not ready yet)
+window.__queuedAlerts = window.__queuedAlerts || [];
+const _origAlert = window.alert;
+window.alert = function (msg) {
+    try {
+        if (typeof showModal === 'function') {
+            showModal(String(msg), 'error');
+        } else {
+            window.__queuedAlerts.push(String(msg));
+        }
+    } catch (e) {
+        // fallback to original alert if anything goes wrong
+        try { _origAlert(msg); } catch (ee) { /* ignore */ }
+    }
+};
+
 document.addEventListener("DOMContentLoaded", function () {
     // Auto-dismiss flash messages after 5 seconds with animation
     const flashMessages = document.querySelectorAll('.flash-message');
@@ -59,18 +75,41 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // DataTables auto-init for tables with .datatable or .table within .table-container
     if (window.jQuery && typeof jQuery.fn.DataTable === 'function') {
+        // Replace DataTables' default error handling so we can show friendly popups
+        try {
+            if (jQuery && jQuery.fn && jQuery.fn.dataTable && jQuery.fn.dataTable.ext) {
+                jQuery.fn.dataTable.ext.errMode = 'none';
+            }
+        } catch (e) {
+            // ignore
+        }
+
         jQuery('.table-container table, table.datatable, table.table').each(function () {
             const $tbl = jQuery(this);
             if ($tbl.hasClass('dataTable')) return; // already initialized
-            $tbl.DataTable({
-                pageLength: 10,
-                lengthMenu: [5,10,25,50,100],
-                order: [],
-                autoWidth: false,
-                language: {
-                    search: "Filter:",
-                }
-            });
+
+            // If table has no data rows, show friendly modal instead of DataTables error
+            const hasRows = $tbl.find('tbody tr').length > 0 && !$tbl.find('tbody tr td').first().hasClass('dataTables_empty');
+            if (!hasRows) {
+                showModal('No data found');
+                return;
+            }
+
+            try {
+                $tbl.DataTable({
+                    pageLength: 10,
+                    lengthMenu: [5,10,25,50,100],
+                    order: [],
+                    autoWidth: false,
+                    language: {
+                        search: "Filter:",
+                    }
+                });
+            } catch (err) {
+                // DataTables initialization failed (likely column mismatch) — show friendly popup
+                console.warn('DataTables init error:', err);
+                showModal('No data found or table structure mismatch');
+            }
         });
     }
 
@@ -120,6 +159,103 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    // Client-side validation for profile form (scoped to #profileForm)
+    const profileForm = document.getElementById('profileForm');
+    if (profileForm) {
+        // Only disable HTML5 validation for this specific form
+        profileForm.setAttribute('novalidate', 'novalidate');
+
+        const MAX_ALLOWED_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+        const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
+        const ALLOWED_RESUME_TYPES = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ];
+
+        profileForm.addEventListener('submit', function (e) {
+            const errors = [];
+
+            const fullName = document.getElementById('fullName');
+            const email = document.getElementById('email');
+            const profileImageUrl = document.getElementById('profileImage');
+            const resumeUrl = document.getElementById('resumeUrl');
+            const imageFileInput = document.getElementById('imageFile');
+            const resumeFileInput = document.getElementById('resumeFile');
+
+            // Required checks
+            if (!fullName || !fullName.value.trim()) {
+                errors.push('Full Name is required.');
+            }
+            if (!email || !email.value.trim()) {
+                errors.push('Email is required.');
+            } else {
+                // Basic email format check
+                const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRe.test(email.value.trim())) {
+                    errors.push('Please enter a valid email address.');
+                }
+            }
+
+            // If profile image URL provided, validate URL format
+            if (profileImageUrl && profileImageUrl.value.trim() !== '') {
+                const imgUrl = profileImageUrl.value.trim();
+                // Allow relative paths (starting with /) or full URLs\
+                if (!imgUrl.startsWith('/') &&
+                !(imgUrl.startsWith('http://') || imgUrl.startsWith('https://') || imgUrl.startsWith('/uploads'))
+                ) {
+                  errors.push('Profile Image URL must be a valid URL or start with /');
+                }
+            }
+
+            // If resume URL provided, validate URL format
+            if (resumeUrl && resumeUrl.value.trim() !== '') {
+                const resUrl = resumeUrl.value.trim();
+                // Allow relative paths (starting with /) or full URLs
+                if (!resUrl.startsWith('/') &&
+                    !(resUrl.startsWith('http://') || resUrl.startsWith('https://') || resUrl.startsWith('/uploads'))
+                    )  {
+                    errors.push('Resume URL must be a valid URL or start with /');
+                }
+            }
+
+            // File checks: image
+            if (imageFileInput && imageFileInput.files && imageFileInput.files.length > 0) {
+                const f = imageFileInput.files[0];
+                if (f.size > MAX_ALLOWED_FILE_SIZE) {
+                    errors.push('Profile image must be 5MB or smaller.');
+                }
+                if (f.type && !ALLOWED_IMAGE_TYPES.includes(f.type.toLowerCase())) {
+                    errors.push('Profile image must be PNG, JPG or GIF.');
+                }
+            }
+
+            // File checks: resume
+            if (resumeFileInput && resumeFileInput.files && resumeFileInput.files.length > 0) {
+                const r = resumeFileInput.files[0];
+                if (r.size > MAX_ALLOWED_FILE_SIZE) {
+                    errors.push('Resume file must be 5MB or smaller.');
+                }
+                if (r.type && !ALLOWED_RESUME_TYPES.includes(r.type.toLowerCase())) {
+                    errors.push('Resume must be PDF, DOC or DOCX.');
+                }
+            }
+
+            if (errors.length > 0) {
+                e.preventDefault();
+                // Show all errors as toasts (first error as important)
+                errors.forEach((msg, idx) => showToast(msg, 'error'));
+                // Focus first invalid field inside the profile form
+                const firstInvalid = profileForm.querySelector('.is-invalid, #fullName, #email');
+                if (firstInvalid) firstInvalid.focus();
+                return false;
+            }
+
+            // If no errors, allow submit
+            return true;
+        });
+    }
 });
 
 // Toast notification function
@@ -154,6 +290,53 @@ function showToast(message, type = 'info') {
             toast.remove();
         }
     }, 4000);
+}
+
+// Modal popup for important messages
+function showModal(message, type = 'info') {
+    // If a modal already exists, replace its message
+    let modal = document.querySelector('.app-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'app-modal';
+        modal.innerHTML = `
+            <div class="app-modal-backdrop"></div>
+            <div class="app-modal-content">
+                <div class="app-modal-body"><p class="app-modal-message"></p></div>
+                <div class="app-modal-actions"><button class="btn btn-primary app-modal-ok">OK</button></div>
+            </div>`;
+        document.body.appendChild(modal);
+
+        // Basic styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .app-modal { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; z-index:10002; }
+            .app-modal-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.6); }
+            .app-modal-content { position:relative; background:#fff; padding:1.25rem; border-radius:8px; max-width:480px; width:90%; box-shadow:0 10px 30px rgba(0,0,0,0.3); z-index:10003; }
+            .app-modal-body { margin-bottom:0.75rem; }
+            .app-modal-message { margin:0; font-size:1rem; }
+            .app-modal-actions { text-align:right; }
+            .app-modal .btn { cursor:pointer; }
+        `;
+        document.head.appendChild(style);
+
+        modal.querySelector('.app-modal-ok').addEventListener('click', () => modal.remove());
+    }
+    const msgEl = modal.querySelector('.app-modal-message');
+    if (msgEl) msgEl.textContent = message;
+    // style by type
+    if (type === 'error') {
+        modal.querySelector('.app-modal-content').style.borderLeft = '6px solid #dc2626';
+    } else {
+        modal.querySelector('.app-modal-content').style.borderLeft = '6px solid #059669';
+    }
+    modal.style.display = 'flex';
+}
+
+// Flush any queued alerts captured before modal was defined
+if (window.__queuedAlerts && window.__queuedAlerts.length) {
+    window.__queuedAlerts.forEach(m => showModal(m, 'error'));
+    window.__queuedAlerts = [];
 }
 
 // Session keepalive functionality

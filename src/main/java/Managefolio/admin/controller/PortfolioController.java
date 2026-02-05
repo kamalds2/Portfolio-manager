@@ -26,7 +26,9 @@ public class PortfolioController {
     @GetMapping({"/", "/list"})
     public String listPortfolios(Model model) {
         List<Portfolio> portfolios = portfolioService.getAllPortfolios();
+        if (portfolios == null) portfolios = new java.util.ArrayList<>();
         model.addAttribute("portfolios", portfolios);
+        model.addAttribute("hasPortfolios", !portfolios.isEmpty());
         model.addAttribute("activePortfolios", portfolioService.getActivePortfolioCount());
         model.addAttribute("totalPortfolios", portfolioService.getTotalPortfolioCount());
         model.addAttribute("viewName", "portfolio/list");
@@ -59,7 +61,7 @@ public class PortfolioController {
             model.addAttribute("isAdmin", true);
             return "layout/base";
         } else {
-            redirectAttributes.addFlashAttribute("error", "Portfolio not found!");
+            redirectAttributes.addFlashAttribute("errorMessage", "Portfolio not found!");
             return "redirect:/admin/portfolio/list";
         }
     }
@@ -102,7 +104,7 @@ public class PortfolioController {
         try {
             Portfolio savedPortfolio = portfolioService.savePortfolio(portfolio);
             String message = (portfolio.getId() != null) ? "Portfolio updated successfully!" : "Portfolio created successfully!";
-            redirectAttributes.addFlashAttribute("success", message);
+            redirectAttributes.addFlashAttribute("successMessage", message);
             return "redirect:/admin/portfolio/list";
         } catch (Exception e) {
             result.rejectValue("portfolioName", "save.error", "Error saving portfolio: " + e.getMessage());
@@ -120,9 +122,9 @@ public class PortfolioController {
     public String deletePortfolio(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         boolean deleted = portfolioService.deletePortfolio(id);
         if (deleted) {
-            redirectAttributes.addFlashAttribute("success", "Portfolio deleted successfully!");
+            redirectAttributes.addFlashAttribute("successMessage", "Portfolio deleted successfully!");
         } else {
-            redirectAttributes.addFlashAttribute("error", "Failed to delete portfolio!");
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete portfolio!");
         }
         return "redirect:/admin/portfolio/list";
     }
@@ -135,9 +137,9 @@ public class PortfolioController {
         Portfolio portfolio = portfolioService.toggleActiveStatus(id);
         if (portfolio != null) {
             String status = portfolio.getActive() ? "activated" : "deactivated";
-            redirectAttributes.addFlashAttribute("success", "Portfolio " + status + " successfully!");
+            redirectAttributes.addFlashAttribute("successMessage", "Portfolio " + status + " successfully!");
         } else {
-            redirectAttributes.addFlashAttribute("error", "Failed to update portfolio status!");
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update portfolio status!");
         }
         return "redirect:/admin/portfolio/list";
     }

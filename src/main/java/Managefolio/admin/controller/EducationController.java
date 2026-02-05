@@ -54,7 +54,10 @@ public class EducationController {
     // 📝 Save education (create or update)
     @PostMapping("/add")
     public String saveEducation(@ModelAttribute Education education, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        boolean isNew = education.getId() == null;
         educationRepository.save(education);
+        redirectAttributes.addFlashAttribute("successMessage", 
+            isNew ? "Education added successfully!" : "Education updated successfully!");
         return "redirect:/admin/education/" + education.getProfile().getId();
     }
 
@@ -77,12 +80,13 @@ public class EducationController {
 
     // ❌ Delete education
     @GetMapping("/delete/{id}")
-    public String deleteEducation(@PathVariable Long id) {
+    public String deleteEducation(@PathVariable Long id, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         Education education = educationRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Invalid education ID: " + id));
 
         Long profileId = education.getProfile().getId();
         educationRepository.deleteById(id);
+        redirectAttributes.addFlashAttribute("successMessage", "Education deleted successfully!");
         return "redirect:/admin/education/" + profileId;
     }
 }

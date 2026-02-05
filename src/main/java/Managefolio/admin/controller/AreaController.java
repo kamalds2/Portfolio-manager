@@ -67,7 +67,8 @@ public class AreaController {
     @PostMapping("/save")
     public String saveArea(@PathVariable Long profileId,
                            @ModelAttribute AreaOfExpertise area,
-                           @RequestParam(required = false) String skillsText) {
+                           @RequestParam(required = false) String skillsText,
+                           org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         Profile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid profile ID: " + profileId));
         area.setProfile(profile);
@@ -83,13 +84,17 @@ public class AreaController {
             area.setSkills(null);
         }
 
+        boolean isNew = area.getId() == null;
         areaRepository.save(area);
+        redirectAttributes.addFlashAttribute("successMessage", 
+            isNew ? "Area of expertise added successfully!" : "Area of expertise updated successfully!");
         return "redirect:/admin/about/" + profileId + "/areas";
     }
 
     @PostMapping("/{areaId}/delete")
-    public String deleteArea(@PathVariable Long profileId, @PathVariable Long areaId) {
+    public String deleteArea(@PathVariable Long profileId, @PathVariable Long areaId, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         areaRepository.deleteById(areaId);
+        redirectAttributes.addFlashAttribute("successMessage", "Area of expertise deleted successfully!");
         return "redirect:/admin/about/" + profileId + "/areas";
     }
 }
