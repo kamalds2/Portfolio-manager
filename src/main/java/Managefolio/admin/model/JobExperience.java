@@ -21,6 +21,7 @@ public class JobExperience {
     private String companyName;
     private String role;
     private String location;
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     private boolean active;
