@@ -18,6 +18,7 @@ public class Projects {
     private Long id;
 
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private String techStack;
     private String imageUrl; // Keep for backward compatibility
