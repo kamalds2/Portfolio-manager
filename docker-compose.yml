@@ -1,15 +1,15 @@
 version: '3.8'
 
 services:
-  # MySQL Database
+  # MySQL Database (or use Google Cloud SQL in production)
   mysql:
     image: mysql:8.0
     container_name: portfolio-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-123456}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-portfolio123}
       MYSQL_DATABASE: ${DB_NAME:-portfolio}
       MYSQL_USER: ${DB_USER:-portfolio_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-123456}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-portfolio123}
     volumes:
       - mysql_data:/var/lib/mysql
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -36,8 +36,12 @@ services:
       DB_PORT: 3306
       DB_NAME: ${DB_NAME:-portfolio}
       DB_USER: ${DB_USER:-portfolio_user}
-      DB_PASSWORD: ${DB_PASSWORD:-123456}
-      JAVA_OPTS: "-Xms512m -Xmx1024m"
+      DB_PASSWORD: ${DB_PASSWORD:-portfolio123}
+      PORT: 8080
+      # Google Cloud specific environment variables
+      GOOGLE_CLOUD_PROJECT: ${GCP_PROJECT_ID}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+      JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC"
     volumes:
       - app_uploads:/app/uploads
     ports:

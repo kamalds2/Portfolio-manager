@@ -35,16 +35,17 @@ USER root
 RUN mkdir -p /app/uploads && chown -R spring:spring /app/uploads
 USER spring:spring
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
+# Health check - optimized for Google Cloud Run
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
 
-# Expose port
+# Expose port (Google Cloud Run uses PORT environment variable)
 EXPOSE 8080
 
-# Environment variables for better container management
-ENV JAVA_OPTS="-Xms512m -Xmx1024m"
-ENV SPRING_PROFILES_ACTIVE=railway
+# Environment variables for Google Cloud deployment
+ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+ENV SPRING_PROFILES_ACTIVE=gcp
+ENV PORT=8080
 
-# Run the application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar --spring.profiles.active=$SPRING_PROFILES_ACTIVE --server.port=$PORT"]
+# Run the application with Google Cloud optimizations
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=${PORT} -jar app.jar --spring.profiles.active=$SPRING_PROFILES_ACTIVE"]

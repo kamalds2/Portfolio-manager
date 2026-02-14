@@ -29,7 +29,7 @@ public class PublicProfileController {
         return profile.map(ResponseEntity::ok)
                       .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
+    
     @GetMapping("/profiles") // 🌐 Public API: Get id, fullName, and profileImage of active profiles
     public List<SimpleProfile> getActiveProfileSummaries() {
         return profileRepository.findByActiveTrue().stream()
