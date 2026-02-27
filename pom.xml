@@ -87,6 +87,11 @@
 			<artifactId>mysql-socket-factory-connector-j-8</artifactId>
 			<version>1.15.0</version>
 		</dependency>
+		<dependency>
+		    <groupId>com.google.cloud</groupId>
+		    <artifactId>google-cloud-storage</artifactId>
+		    <version>2.28.0</version>
+		</dependency>
 		
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -103,6 +108,8 @@
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- Explicit Guava dependency to resolve Google Cloud Storage NoSuchMethodError -->
+	
 	
 		
 	</dependencies>
