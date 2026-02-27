@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/portfolio")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5175"}) // React frontend - support both Vite ports
+@CrossOrigin(origins = "*") // React frontend - support both Vite ports
 public class PublicProfileController {
 
     private final ProfileRepository profileRepository;
