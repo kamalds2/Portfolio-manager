@@ -92,6 +92,12 @@
 		    <artifactId>google-cloud-storage</artifactId>
 		    <version>2.28.0</version>
 		</dependency>
+		<!-- Explicit Guava dependency to resolve Google Cloud Storage NoSuchMethodError -->
+		<dependency>
+		    <groupId>com.google.guava</groupId>
+		    <artifactId>guava</artifactId>
+		    <version>32.1.2-jre</version>
+		</dependency>
 		
 		<dependency>
 			<groupId>org.projectlombok</groupId>

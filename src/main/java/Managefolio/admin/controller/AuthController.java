@@ -17,6 +17,12 @@ public class AuthController {
     @Autowired private UserService userService;
     @Autowired private PasswordEncoder passwordEncoder;
 
+    // Redirect root URL to login page
+    @GetMapping("/")
+    public String redirectToLogin() {
+        return "redirect:/login";
+    }
+
     // 🌐 Login Page
     @GetMapping("/login")
     public String loginPage(Model model) {
