@@ -76,13 +76,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-            "https://myportfolio-334224597504.asia-south1.run.app",
+
+        // Accept Cloud Run frontend URLs + localhost
+        config.setAllowedOriginPatterns(List.of(
+            "https://*.asia-south1.run.app",
             "http://localhost:5173"
         ));
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(false); // keep false unless you use cookies/auth from frontend
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -103,7 +106,6 @@ public class SecurityConfig {
                 "POST".equalsIgnoreCase(req.getMethod())) {
                 System.out.println("🔐 Login Attempt:");
                 System.out.println("Username: " + req.getParameter("username"));
-                System.out.println("Password: " + req.getParameter("password"));
             }
             chain.doFilter(request, response);
         };
