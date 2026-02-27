@@ -1,5 +1,6 @@
 package Managefolio.admin.controller;
 
+import Managefolio.admin.controller.PublicProfileController.SimpleProfile;
 import Managefolio.admin.model.Profile;
 import Managefolio.admin.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @RestController
 @RequestMapping("/portfolio")
+@CrossOrigin(
+    originPatterns = {"https://*.asia-south1.run.app", "http://localhost:5173"},
+    methods = {RequestMethod.GET, RequestMethod.OPTIONS},
+    allowedHeaders = "*",
+    maxAge = 3600
+)
 // React frontend - support both Vite ports
 public class PublicProfileController {
 
@@ -24,6 +32,7 @@ public class PublicProfileController {
 
     // ✅ Updated: Get a specific active profile by ID (returns 200 or 404 for React frontend)
     @GetMapping("/profiles/{id}")
+    
     public ResponseEntity<Profile> getProfileById(@PathVariable Long id) {
         Optional<Profile> profile = profileRepository.findByIdAndActiveTrue(id);
         return profile.map(ResponseEntity::ok)
