@@ -20,7 +20,7 @@ public class CorsConfig {
             "http://localhost:5173",
             "http://localhost:5174",
             "http://localhost:5175",
-            "https://*.asia-south1.run.app",
+            "https://myportfolio-334224597504.asia-south1.run.app",
             "http://localhost:3000"  // Common React dev port
         ));
         
